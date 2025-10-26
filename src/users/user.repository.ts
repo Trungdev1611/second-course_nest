@@ -1,0 +1,21 @@
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "./user.entity";
+import { Repository } from "typeorm";
+import { CreateUserDTO } from "./user.dto";
+
+@Injectable()
+export class UserRepository {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>
+  ) {}
+
+  async findUserByEmail(email: string) {
+    return await this.userRepo.findOne({ where: { email } });
+  }
+
+  async saveNewUser(createUser: CreateUserDTO) {
+    return await this.userRepo.save(createUser);
+  }
+}
