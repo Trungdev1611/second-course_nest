@@ -1,19 +1,21 @@
 
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-@Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'mysecretpassword',
-      database: 'fullstack',
-      entities: ["./**/*.entity.ts", "./**/*.entity.js"],
-      synchronize: true,
-    }),
-  ],
-})
-export class DatabaseModule {}
+export const dataSourceConfig: PostgresConnectionOptions = {
+  type: 'postgres',
+  host: 'localhost',
+  port: 5432,
+  username: 'postgres',
+  password: 'mysecretpassword',
+  database: 'fullstack',
+  entities: [__dirname + "/../**/*.entity.{ts,js}"],
+  // synchronize: true,
+  migrationsTableName: 'migrations',
+  migrations: [__dirname + '/../migrations/**/*.ts'] //and config trong package.json
+}
+
+const AppDataSource = new DataSource(dataSourceConfig)
+
+export {AppDataSource}
+export default dataSourceConfig

@@ -13,7 +13,7 @@ import { CreateUserDTO } from './user.dto';
 export class UserController {
   constructor(private readonly useService: UserService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() createDto: CreateUserDTO) {
     return this.useService.create(createDto);
   }
