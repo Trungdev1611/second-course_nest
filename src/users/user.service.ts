@@ -11,21 +11,15 @@ export class UserService {
   constructor(private readonly userRepo: UserRepository ){
 
   }
-  async create(createDto: CreateUserDTO) {
+  async createUser(createDto: CreateUserDTO) {
     try {
       if(createDto.password) {
         const hashPassword = await BcryptUtil.hashPassword(createDto.password)
         createDto.password = hashPassword
       }
       const savedUser =  await this.userRepo.saveNewUser(createDto)
-      // const user =  new User(savedUser)
-
       return plainToInstance(User, { ...savedUser});
-      // return user
-      // return {
-      //   ...user,
-      //   token: "test"
-      // }
+ 
     } catch (error) {
       throw new BadRequestException(error.message || 'Unexpected error');
 
@@ -34,11 +28,7 @@ export class UserService {
   }
 
   async findByEmail(email: string) {
-    try {
-        return this.userRepo.findUserByEmail(email)
-    } catch (error) {
-      throw new BadRequestException(error.message || 'validate findByEmail error');
-    }
+    return this.userRepo.findUserByEmail(email)
   }
 
   findAll() {

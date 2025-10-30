@@ -2,11 +2,7 @@ import { BaseEntity } from "src/common/base.entity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { Exclude } from 'class-transformer';
 @Entity()
-export class User 
-extends BaseEntity
-{
-
-
+export class User extends BaseEntity {
   @Column({unique: true})
   name: string
 

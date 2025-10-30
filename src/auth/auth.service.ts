@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/user.entity';
 import { IPayloadToken } from './jwtStrategy';
@@ -6,6 +6,7 @@ import { LoginDTO } from './auth.dto';
 import { UserService } from 'src/users/user.service';
 import { BcryptUtil } from 'src/utils/hashPassword';
 import { plainToInstance } from 'class-transformer';
+import { CreateUserDTO } from 'src/users/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -42,4 +43,9 @@ export class AuthService {
         
     }
   }
+
+  async register(payload: CreateUserDTO) {
+    return this.userService.createUser(payload)
+  }
+   
 }

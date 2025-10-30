@@ -15,6 +15,10 @@ export class UserRepository {
     return await this.userRepo.findOne({ where: { email } });
   }
 
+  async findUserByName(name: string) {
+    return await this.userRepo.findOne({where: {name}})
+  }
+
   async saveNewUser(createUser: CreateUserDTO) {
     return await this.userRepo.save(createUser);
   }

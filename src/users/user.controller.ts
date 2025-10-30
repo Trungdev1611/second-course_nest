@@ -16,10 +16,7 @@ import { keyjwtGuard } from 'src/guard/jwtAuthGuard';
 export class UserController {
   constructor(private readonly useService: UserService) {}
 
-  @Post('create')
-  create(@Body() createDto: CreateUserDTO) {
-    return this.useService.create(createDto);
-  }
+
 
   @Get()
   findAll() {
