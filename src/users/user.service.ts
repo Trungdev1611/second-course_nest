@@ -3,6 +3,7 @@ import { CreateUserDTO } from './user.dto';
 import { UserRepository } from './user.repository';
 import { BcryptUtil } from 'src/utils/hashPassword';
 import { User } from './user.entity';
+import { plainToInstance } from 'class-transformer';
 
 
 @Injectable()
@@ -17,12 +18,27 @@ export class UserService {
         createDto.password = hashPassword
       }
       const savedUser =  await this.userRepo.saveNewUser(createDto)
-      return new User(savedUser)
+      // const user =  new User(savedUser)
+
+      return plainToInstance(User, { ...savedUser});
+      // return user
+      // return {
+      //   ...user,
+      //   token: "test"
+      // }
     } catch (error) {
       throw new BadRequestException(error.message || 'Unexpected error');
 
     }
     
+  }
+
+  async findByEmail(email: string) {
+    try {
+        return this.userRepo.findUserByEmail(email)
+    } catch (error) {
+      throw new BadRequestException(error.message || 'validate findByEmail error');
+    }
   }
 
   findAll() {

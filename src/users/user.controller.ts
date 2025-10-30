@@ -4,9 +4,12 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { keyjwtGuard } from 'src/guard/jwtAuthGuard';
 
 
 @Controller('user')
