@@ -1,99 +1,81 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Modern Blog Platform (NestJS + Next.js)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 1. Công nghệ Backend (NestJS)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Framework**: NestJS + TypeScript  
+- **Database**: PostgreSQL + TypeORM / Prisma  
+- **Caching & Rate Limiting**: Redis (cache bài viết, lưu refresh token, rate limiting)  
+- **Search**: Elasticsearch (tìm kiếm nâng cao: title, content, tags)  
+- **Authentication**: JWT (access + refresh token)  
+- **File Upload**: Multer + AWS S3 / Cloudinary (ảnh bài viết, avatar)  
+- **Real-time**: Socket.IO (comment/like notifications)  
+- **API Documentation**: Swagger  
+- **Validation & DTOs**: class-validator + class-transformer  
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 2. Công nghệ Frontend (Next.js)
 
-## Project setup
+- **Framework**: Next.js 13+ (App Router) + TypeScript  
+- **Data Fetching**: React Query / SWR (cache, refetch)  
+- **UI**: Tailwind CSS / Ant Design  
+- **Form Validation**: React Hook Form + Zod  
+- **Real-time**: Socket.IO Client  
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## 3. Các màn / Page + API
 
-```bash
-# development
-$ npm run start
+| Page (Frontend)       | Backend API                     | Mục đích API |
+|----------------------|---------------------------------|-------------|
+| **Auth / Login / Register** | POST /auth/register          | Đăng ký user |
+|                      | POST /auth/login                | Đăng nhập, trả access + refresh token |
+|                      | POST /auth/refresh              | Lấy access token mới bằng refresh token (Redis lưu) |
+|                      | POST /auth/logout               | Xóa refresh token trong Redis |
+| **Home / Feed**      | GET /posts?limit=&page=&sort=   | Lấy danh sách bài viết có phân trang, sort theo mới nhất / popular |
+|                      | GET /posts/search?q=            | Tìm kiếm bài viết (Elasticsearch) |
+| **Post Detail**      | GET /posts/:id                  | Lấy bài viết chi tiết |
+|                      | GET /posts/:id/comments         | Lấy comment của bài viết |
+|                      | POST /posts/:id/comments        | Thêm comment (JWT required) |
+|                      | POST /posts/:id/like            | Like bài viết (JWT required) |
+|                      | WebSocket post/:id              | Realtime: comment mới, like update |
+| **Create / Edit Post** | POST /posts                    | Tạo bài viết mới (JWT + Author role) |
+|                      | PUT /posts/:id                  | Chỉnh sửa bài viết |
+|                      | POST /upload                    | Upload ảnh (trả URL để lưu trong content) |
+| **User Profile**     | GET /users/:id                  | Lấy thông tin user và bài viết của họ |
+|                      | PUT /users/:id                  | Cập nhật profile (avatar, bio) |
+| **Admin Dashboard**  | GET /admin/users                | Quản lý user (Admin role) |
+|                      | GET /admin/posts                | Quản lý bài viết (Admin role) |
+|                      | DELETE /admin/posts/:id         | Xóa bài viết (Admin role) |
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+## 4. Công nghệ / Feature theo Page
 
-## Run tests
+### Auth pages
+- JWT, Redis (refresh token storage)  
+- Validation, hashing mật khẩu  
 
-```bash
-# unit tests
-$ npm run test
+### Home / Feed / Search
+- Elasticsearch cho tìm kiếm  
+- Redis cache feed / hot posts  
+- Pagination, sorting  
 
-# e2e tests
-$ npm run test:e2e
+### Post Detail / Comments
+- WebSocket (realtime comment/like)  
+- Like tracking, nested comments  
+- File URLs từ S3 / Cloudinary nếu có ảnh  
 
-# test coverage
-$ npm run test:cov
-```
+### Create / Edit Post
+- File upload (image), rich text editor (Quill.js hoặc Tiptap)  
+- Role-based guard (Author/Admin)  
 
-## Deployment
+### Profile / Admin Dashboard
+- Role-based authorization  
+- CRUD user/posts  
+- Statistics / analytics (optional)  
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 💡 Lưu ý
+Blog

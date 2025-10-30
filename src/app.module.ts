@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import dataSourceConfig from './config/db.config';
 import { ConfigModule } from '@nestjs/config';
+import { BlogModule } from './blogs/blog.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -17,7 +18,8 @@ import { ConfigModule } from '@nestjs/config';
       cache: true, // (tuỳ chọn) cache để load nhanh hơn
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    BlogModule
   ],
   controllers: [AppController],
   providers: [AppService],

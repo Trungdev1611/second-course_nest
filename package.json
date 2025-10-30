@@ -21,7 +21,11 @@
     "db:drop": "NODE_OPTIONS='-r tsconfig-paths/register' typeorm-ts-node-commonjs schema:drop -d src/config/db.config.ts",
     "migration:generate": "NODE_OPTIONS='-r tsconfig-paths/register' typeorm-ts-node-commonjs migration:generate -d src/config/db.config.ts",
     "migration:run": "NODE_OPTIONS='-r tsconfig-paths/register' typeorm-ts-node-commonjs migration:run -d src/config/db.config.ts",
-    "migration:revert": "NODE_OPTIONS='-r tsconfig-paths/register' typeorm-ts-node-commonjs migration:revert -d src/config/db.config.ts"
+    "migration:revert": "NODE_OPTIONS='-r tsconfig-paths/register' typeorm-ts-node-commonjs migration:revert -d src/config/db.config.ts",
+
+    "migration:generate:win": "set NODE_OPTIONS=-r tsconfig-paths/register && typeorm-ts-node-commonjs migration:generate -d src/config/db.config.ts",
+    "migration:run:win": "set NODE_OPTIONS=-r tsconfig-paths/register && typeorm-ts-node-commonjs migration:run -d src/config/db.config.ts",
+    "migration:revert:win": "set NODE_OPTIONS=-r tsconfig-paths/register && typeorm-ts-node-commonjs migration:revert -d src/config/db.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -30,6 +34,7 @@
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^7.4.2",
     "@nestjs/typeorm": "^11.0.0",
     "1.starttolearn": "file:",
     "bcrypt": "^6.0.0",
@@ -40,6 +45,7 @@
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.27"
   },
   "devDependencies": {

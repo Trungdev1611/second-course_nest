@@ -5,7 +5,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 export const dataSourceConfig: PostgresConnectionOptions = {
   type: 'postgres',
   host: 'localhost',
-  port: 5432,
+  port: 3336,
   username: 'postgres',
   password: 'mysecretpassword',
   database: 'fullstack',
