@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDTO } from './user.dto';
 import { UserRepository } from './user.repository';
 import { BcryptUtil } from 'src/utils/hashPassword';
+import { User } from './user.entity';
 
 
 @Injectable()
@@ -15,7 +16,8 @@ export class UserService {
         const hashPassword = await BcryptUtil.hashPassword(createDto.password)
         createDto.password = hashPassword
       }
-      return await this.userRepo.saveNewUser(createDto)
+      const savedUser =  await this.userRepo.saveNewUser(createDto)
+      return new User(savedUser)
     } catch (error) {
       throw new BadRequestException(error.message || 'Unexpected error');
 
