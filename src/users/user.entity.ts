@@ -16,6 +16,9 @@ export class User extends BaseEntity {
   @Column({default: ""})
   image: string;
 
+  @Column({default: false})
+  is_verify_email: boolean
+
   constructor(partial: Partial<User>) {
     super();
     Object.assign(this, partial);

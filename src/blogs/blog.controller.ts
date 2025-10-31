@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDTO } from './blog.dto';
-import { ApiOperation, ApiResponse, ApiResponseProperty, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 
 @ApiTags('Blogs')
@@ -39,6 +39,23 @@ export class BlogController {
     }
 
   @Get("all")
+    @ApiOperation({
+      summary: "API để get các blog - có pagination và search",
+      description: "yêu cầu các thông tin hợp lệ của blog schema"
+    })
+    @ApiResponse({
+      status: 201,
+      description: 'API success - trả về data theo client query và pagination',
+      schema: {
+        example: {
+          data: 'list blogs array',
+          metadata: {
+            total: 100,
+          },
+
+        },
+      },
+    })
   filterAndPaginate(@Query() query: PaginateAndSearchDTO) {
     return this.blogService.filterAndPaginate(query);
   }

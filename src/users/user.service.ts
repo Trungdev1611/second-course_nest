@@ -11,13 +11,13 @@ export class UserService {
   constructor(private readonly userRepo: UserRepository ){
 
   }
-  async createUser(createDto: CreateUserDTO) {
+  async createOrSaveUser(createDto: CreateUserDTO) {
     try {
       if(createDto.password) {
         const hashPassword = await BcryptUtil.hashPassword(createDto.password)
         createDto.password = hashPassword
       }
-      const savedUser =  await this.userRepo.saveNewUser(createDto)
+      const savedUser =  await this.userRepo.saveUser(createDto)
       return plainToInstance(User, { ...savedUser});
  
     } catch (error) {
