@@ -13,7 +13,9 @@ export const dataSourceConfig: PostgresConnectionOptions = {
   entities: [__dirname + "/../**/*.entity.{ts,js}"],
   // synchronize: true,
   migrationsTableName: 'migrations',
-  migrations: [__dirname + '/../migrations/**/*.ts'] //and config trong package.json
+  migrations: [__dirname + '/../migrations/**/*.ts'], //and config trong package.json,
+  logging: ['query', 'error', 'warn']
+
 }
 
 const AppDataSource = new DataSource(dataSourceConfig)

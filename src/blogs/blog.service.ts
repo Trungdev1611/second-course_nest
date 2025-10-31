@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBlogDTO } from './blog.dto';
 import { BlogRepository } from './blog.repository';
+import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 
 
 @Injectable()
@@ -18,9 +19,15 @@ export class BlogService {
 
   }
 
-  // findAll() {
-  //   return `This action returns all s`;
-  // }
+  async filterAndPaginate(query: PaginateAndSearchDTO) {
+    try {
+      const {items, page, per_page, total} =   await this.blogRepo.findAndPaginate(query)
+      return {data: items, metadata: {page, per_page, total}}
+    } catch (error) {
+        throw new BadRequestException(error.message || "Something wrong happened")
+    }
+
+  }
 
   // findOne(id: number) {
   //   return `This action returns a #id `;
