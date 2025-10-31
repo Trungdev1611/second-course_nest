@@ -11,3 +11,9 @@ export class LoginDTO {
     @IsNotEmpty()
     password: string
 }
+
+
+export class VerifyTokenDTO {
+    @ApiProperty({example: "token", description: "Token that the user got from their email"})
+    token: string
+}

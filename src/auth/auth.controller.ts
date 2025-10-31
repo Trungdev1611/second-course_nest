@@ -2,16 +2,22 @@ import { AuthService } from 'src/auth/auth.service';
 import {
   Body,
   Controller,
+  Get,
   Post,
+  Query,
 } from '@nestjs/common';
-import { LoginDTO } from './auth.dto';
+import { LoginDTO, VerifyTokenDTO } from './auth.dto';
 import { CreateUserDTO } from 'src/users/user.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { MailToReceiveTokenDTO } from 'src/email/email.dto';
+import { EmailService } from 'src/email/email.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService,
+    private readonly mailService: EmailService
+  ) {}
 
   @Post('login')
     @ApiOperation({
@@ -40,4 +46,49 @@ export class AuthController {
   registerAuth(@Body() createDto: CreateUserDTO) {
     return this.authService.register(createDto);
   }
+
+  @Get(`verify-token-in-email`)
+    @ApiOperation({
+      summary: 'Verify token nhận được từ email', 
+      description:
+        `Endpoint này sẽ verify token từ mà user nhận được từ mail.
+        `
+       
+    })
+      @ApiResponse({
+      status: 200,
+      description: ` Khi verify 
+        xong thì sẽ nhận cột isverrify trong user sẽ chuyển true`,
+      schema: {
+        example: {
+          is_verify_mail: true,
+        },
+      },
+    })
+  verifyTokenEmail(@Query() query: VerifyTokenDTO) {
+    return this.authService.verifyTokenEmail(query.token)
+  }
+
+  @Post("register-mail-get-token")
+    @ApiOperation({
+      summary: 'Nhập email đã đăng kí để verify', 
+      description:
+        `Endpoint này sẽ gửi 1 email chứa link để verify vào email mà người dùng nhập.
+        `
+      
+    })
+      @ApiResponse({
+      status: 200,
+      description: `nhận thông báo thành công và một thư được gửi vào mail`,
+      schema: {
+        example: {
+          message: "success",
+        },
+      },
+    })
+  create(@Body() mailTosenDto: MailToReceiveTokenDTO) {
+    return this.authService.sendTokenToMail(mailTosenDto)
+    // const token = this.authService.generateToken(mail)
+    //   return this.mailService.sendEmail(mailTosenDto.email, mailTosenDto.email)
+    }
 }

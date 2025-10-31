@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Xác nhận tài khoản của bạn</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
+    .container {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 30px;
+      max-width: 500px;
+      margin: 0 auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #333;
+    }
+    p {
+      color: #555;
+      line-height: 1.6;
+    }
+    a.verify-btn {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    a.verify-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Xin chào {{name}},</h2>
+    <p>
+      Cảm ơn bạn đã đăng ký tài khoản tại <strong>My App</strong>.  
+      Vui lòng nhấn vào nút bên dưới để xác nhận email của bạn:
+    </p>
+
+    <p style="text-align: center;">
+      <a href="{{verifyLink}}" class="verify-btn">Xác nhận tài khoản</a>
+    </p>
+
+    <p>Nếu bạn không tạo tài khoản này, vui lòng bỏ qua email này.</p>
+    <p>Trân trọng,<br/>Đội ngũ My App</p>
+  </div>
+</body>
+</html>
