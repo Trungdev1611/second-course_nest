@@ -15,7 +15,7 @@ import { CreateBlogDTO } from './blog.dto';
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() createDto: CreateBlogDTO) {
     return this.blogService.create(createDto);
   }

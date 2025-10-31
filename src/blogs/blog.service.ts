@@ -11,7 +11,7 @@ export class BlogService {
   async create(createDto: CreateBlogDTO) {
     try {
       const savedBlog = await this.blogRepo.createBlog(createDto)
-      return savedBlog
+      return {title: savedBlog.title, content: savedBlog.content}
     } catch (error) {
       throw new BadRequestException(error.message || "Something wrong happened")
     }

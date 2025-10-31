@@ -1,11 +1,12 @@
 
 import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-
+import * as dotenv from 'dotenv';
+dotenv.config(); 
 export const dataSourceConfig: PostgresConnectionOptions = {
   type: 'postgres',
   host: 'localhost',
-  port: 3336,
+  port: Number(process.env.PORT_DB)  || 3336,
   username: 'postgres',
   password: 'mysecretpassword',
   database: 'fullstack',
