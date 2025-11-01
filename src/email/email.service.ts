@@ -32,7 +32,17 @@ export class EmailService {
     )
   }
 
- 
+   async sendEmailResetPassword(to: string, name: string, verifyLink: string, subject: string = "Reset password từ Blog app") {
+    const html = this.renderTemplate('reset-password', { name, verifyLink });
+    await this.transporter.sendMail(
+        {
+            from: `"Blog App" <${this.configService.get('GMAIL_SEND')}>`,
+            to,
+            subject: subject,
+            html,
+          } 
+    )
+  }
 
   private renderTemplate(templateName: string, context: Record<string, any>): string {
     const templatePath = path.resolve(

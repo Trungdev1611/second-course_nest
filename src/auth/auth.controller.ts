@@ -6,7 +6,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { LoginDTO, VerifyTokenDTO } from './auth.dto';
+import { LoginDTO, ResetPassWorDTO, VerifyTokenDTO } from './auth.dto';
 import { CreateUserDTO } from 'src/users/user.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MailToReceiveTokenDTO } from 'src/email/email.dto';
@@ -88,7 +88,66 @@ export class AuthController {
     })
   create(@Body() mailTosenDto: MailToReceiveTokenDTO) {
     return this.authService.sendTokenToMail(mailTosenDto)
-    // const token = this.authService.generateToken(mail)
-    //   return this.mailService.sendEmail(mailTosenDto.email, mailTosenDto.email)
+    }
+
+  @Post("password-recovery")
+   @ApiOperation({
+      summary: 'Nhập email đã đăng kí để nhận link reset password', 
+      description:
+        `Endpoint này sẽ gửi 1 email chứa link để đi đến trang lấy lại mật khẩu .
+        `
+      
+    })
+      @ApiResponse({
+      status: 200,
+      description: `nhận thông báo thành công và một thư được gửi vào mail`,
+      schema: {
+        example: {
+          message: "success",
+        },
+      },
+    })
+   sendLinkForgotPasswordtoEmail(@Body() mailData: MailToReceiveTokenDTO) {
+    return this.authService.sendLinkForgotPasswordtoEmail(mailData)
+  }
+
+  @Post("reset-password")
+  @ApiOperation({
+      summary: 'Nhập email đã đăng kí và mật khẩu mới để reset', 
+      description:
+        `Nếu thành công người dùng có thể dùng thông tin đã nhập để login .
+        `
+      
+    })
+      @ApiResponse({
+      status: 200,
+      description: `Có thể login bằng thông tin mới`,
+      schema: {
+        example: {
+          message: "success",
+        },
+      },
+    })
+  resetPassWord(@Body() resetPassData: ResetPassWorDTO, @Query() query: VerifyTokenDTO) {
+    return this.authService.resetPass(resetPassData, query)
+  }
+
+  @Get("verify-token-reset-password")
+  @ApiOperation({
+      summary: 'dùng để verify token trên url khi truy cập vào trang lần đầu', 
+      description:
+        `Nếu thành công người dùng có thể được truy cập vào trang để reset password .
+        `
+    })
+      @ApiResponse({
+      status: 200,
+      schema: {
+        example: {
+          message: "token is valid",
+        },
+      },
+    })
+    verifyTokenResetPassword( @Query() query: VerifyTokenDTO) {
+      return this.authService.verifyTokenResetPassword( query)
     }
 }

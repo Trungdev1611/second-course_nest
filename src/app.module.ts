@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import dataSourceConfig from './config/db.config';
 import { ConfigModule } from '@nestjs/config';
 import { BlogModule } from './blogs/blog.module';
+import { RedisModule } from './redis/redis.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -19,7 +20,8 @@ import { BlogModule } from './blogs/blog.module';
     }),
     UserModule,
     AuthModule,
-    BlogModule
+    BlogModule,
+    RedisModule
   ],
   controllers: [AppController],
   providers: [AppService],
