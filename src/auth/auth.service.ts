@@ -100,8 +100,8 @@ export class AuthService {
         const token = await this.generateToken({id: user.id, email: user.email, name: user.name}, '5m')
 
         //save token to redis to verify later
-        this.redisService.set(`tokenreset${user.id}`, token, 600)
-
+        await this.redisService.set(`tokenreset${user.id}`, token, 600)
+        console.log("tokenresetRedis:::", this.redisService.get((`tokenreset${user.id}`)))
         const domain = this.configService.get("DOMAIN") || "localhost:3000"
         const verifyLink = `${domain}/reset-password?token=${token}`
         await this.mailService.sendEmailResetPassword(mailData.email, mailData.email, verifyLink)

@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwtStrategy';
 import { UserModule } from 'src/users/user.module';
 import { EmailModule } from 'src/email/email.module';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { EmailModule } from 'src/email/email.module';
       signOptions: { expiresIn: '1h' },
     }),
     UserModule,
-    EmailModule
+    EmailModule,
+    RedisModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

@@ -9,9 +9,9 @@
 | POST | `/api/auth/register` | Đăng ký tài khoản mới | `{ email, username, password, fullName }` | `{ user, accessToken, refreshToken }` | ✅
 | POST | `/api/auth/login` | Đăng nhập | `{ email, password }` | `{ accessToken, refreshToken, user }` |    ✅
 | POST | `/api/auth/refresh` | Lấy access token mới từ refresh token | `{ refreshToken }` | `{ accessToken }` |
-| POST | `/api/auth/forgot-password` | Gửi email reset mật khẩu | `{ email }` | `{ message: "Email sent" }` |
-| POST | `/api/auth/reset-password` | Reset mật khẩu với token | `{ token, newPassword }` | `{ message: "Password reset" }` |
-| POST | `/api/auth/verify-email` | Xác thực email | `{ token }` | `{ message: "Email verified" }` |
+| POST | `/api/auth/forgot-password` | Gửi email reset mật khẩu | `{ email }` | `{ message: "Email sent" }` |✅
+| POST | `/api/auth/reset-password` | Reset mật khẩu với token | `{ token, newPassword }` | `{ message: "Password reset" }` |✅
+| POST | `/api/auth/verify-email` | Xác thực email | `{ token }` | `{ message: "Email verified" }` | ✅
 
 ### Protected Endpoints (Require JWT)
 

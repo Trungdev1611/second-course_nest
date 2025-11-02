@@ -3,6 +3,6 @@ import { IsEmail } from "class-validator";
 
 export class MailToReceiveTokenDTO {
     @IsEmail()
-    @ApiProperty({ example: 'user@example.com', description: 'Email đã đăng kí muốn verify'})
+    @ApiProperty({ example: 'trungdev1611@gmail.com', description: 'Email đã đăng kí muốn verify'})
     email: string
 }
