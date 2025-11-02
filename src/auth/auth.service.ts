@@ -39,9 +39,10 @@ export class AuthService {
         if(!user) {
             throw new UnauthorizedException('Email không tồn tại');
         }
-
+        
+        console.log("payload:", payload)
         const isMatch = await BcryptUtil.comparePassword(payload.password, user.password);
-
+        
         if (!isMatch) {
             throw new UnauthorizedException('Mật khẩu không đúng');
           }
@@ -49,7 +50,7 @@ export class AuthService {
 
         return plainToInstance(User, { ...user, token: access_token});
     } catch (error) {
-        
+        throw new BadRequestException(error.message)
     }
   }
 
@@ -101,7 +102,6 @@ export class AuthService {
 
         //save token to redis to verify later
         await this.redisService.set(`tokenreset${user.id}`, token, 600)
-        console.log("tokenresetRedis:::", this.redisService.get((`tokenreset${user.id}`)))
         const domain = this.configService.get("DOMAIN") || "localhost:3000"
         const verifyLink = `${domain}/reset-password?token=${token}`
         await this.mailService.sendEmailResetPassword(mailData.email, mailData.email, verifyLink)
@@ -128,6 +128,7 @@ export class AuthService {
   }
   async resetPass(resetPassData: ResetPassWorDTO,  query: VerifyTokenDTO) {
     try {
+      console.log("resetData:", resetPassData)
       const user = await this.userService.findByEmail(resetPassData.email)
         if(!user) {
         throw new BadRequestException("The email has not been registered")
@@ -136,9 +137,9 @@ export class AuthService {
       if(!tokenRedis || tokenRedis !== query.token) {
           throw new BadRequestException("token không hợp lệ hoặc hết hạn")
       }
-      const hashPassword = await BcryptUtil.hashPassword(resetPassData.password)
-      user.password = hashPassword
-      const updatedUser = await this.userService.createOrSaveUser(user)
+      // const hashPassword = await BcryptUtil.hashPassword(resetPassData.password)
+      // user.password = hashPassword
+      const updatedUser = await this.userService.createOrSaveUser({...user, ...resetPassData})
       return  plainToInstance(User, updatedUser)
     } catch (error) {
         throw new BadRequestException(error.message)

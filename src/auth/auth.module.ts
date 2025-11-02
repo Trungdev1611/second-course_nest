@@ -4,18 +4,22 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwtStrategy';
 import { UserModule } from 'src/users/user.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailModule } from 'src/email/email.module';
 import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.jwtkey || 'superSecretKey',
-      signOptions: { expiresIn: '1h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get('jwtkey') || 'superSecretKey',
+        signOptions: { expiresIn: '1h' },
+      }),
     }),
     UserModule,
-    EmailModule,
-    RedisModule
+    EmailModule,RedisModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

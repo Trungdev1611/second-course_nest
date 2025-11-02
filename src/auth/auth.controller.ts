@@ -5,12 +5,15 @@ import {
   Get,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { LoginDTO, ResetPassWorDTO, VerifyTokenDTO } from './auth.dto';
 import { CreateUserDTO } from 'src/users/user.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { MailToReceiveTokenDTO } from 'src/email/email.dto';
 import { EmailService } from 'src/email/email.service';
+import { JwtAuthGuard } from 'src/guard/jwtAuthGuard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -150,4 +153,27 @@ export class AuthController {
     verifyTokenResetPassword( @Query() query: VerifyTokenDTO) {
       return this.authService.verifyTokenResetPassword( query)
     }
+
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'dùng để lấy thông tin của người đang đăng nhập', 
+        description:
+          `Nếu thành công sẽ trả về thông tin ngừoi đăng nhập.
+          `
+      })
+        @ApiResponse({
+        status: 200,
+        schema: {
+          example: {
+            name: "name user",
+            email: "trungdev1611@gmail.com"
+          },
+        },
+      })
+      async getCurrentUserInfo(@Req() req ) {
+          console.log(`req.user::`, req.user)
+          return req.user
+      }
 }
