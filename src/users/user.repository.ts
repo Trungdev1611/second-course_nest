@@ -22,4 +22,8 @@ export class UserRepository {
   async saveUser(createUser: CreateUserDTO) {
     return await this.userRepo.save(createUser);
   }
+
+  async findOneUserById(id:number) {
+    return await this.userRepo.findOne({where: {id}})
+  }
 }

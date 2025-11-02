@@ -54,7 +54,7 @@
 
 | Method | Endpoint | Description | Query Params | Response |
 |--------|----------|-------------|--------------|----------|
-| GET | `/api/posts` | Danh sách bài viết (published) | `?page=1&limit=20&sort=newest\|popular\|trending&tag=javascript` | `{ data: [posts], meta }` |
+| GET | `/api/posts` | Danh sách bài viết (published) | `?page=1&limit=20&sort=newest\|popular\|trending&tag=javascript` | `{ data: [posts], meta }` | 
 | GET | `/api/posts/:id` | Chi tiết bài viết | - | `{ post, author, tags, stats }` |
 | GET | `/api/posts/slug/:slug` | Lấy bài viết theo slug | - | `{ post }` |
 | GET | `/api/posts/trending` | Bài viết trending | `?period=24h\|7d\|30d&limit=10` | `{ data: [posts] }` |

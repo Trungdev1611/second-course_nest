@@ -12,6 +12,7 @@ import { BlogService } from './blog.service';
 import { CreateBlogDTO } from './blog.dto';
 import { ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
+import { IdParamDto } from 'src/common/dto/common.dto';
 
 @ApiTags('Blogs')
 @Controller('blog')
@@ -38,7 +39,7 @@ export class BlogController {
       return this.blogService.create(createDto);
     }
 
-  @Get("all")
+  @Get("posts")
     @ApiOperation({
       summary: "API để get các blog - có pagination và search",
       description: "yêu cầu các thông tin hợp lệ của blog schema"
@@ -60,10 +61,7 @@ export class BlogController {
     return this.blogService.filterAndPaginate(query);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.blogService.findOne(+id);
-  // }
+
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateDto: UpdateDto) {

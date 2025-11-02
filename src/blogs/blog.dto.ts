@@ -77,3 +77,5 @@ export class CreateBlogDTO {
   @IsString({ each: true })
   tags?: string[];
 }
+
+

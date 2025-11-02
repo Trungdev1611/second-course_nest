@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDTO } from './user.dto';
 import { UserRepository } from './user.repository';
 import { BcryptUtil } from 'src/utils/hashPassword';
@@ -31,12 +31,21 @@ export class UserService {
     return this.userRepo.findUserByEmail(email)
   }
 
+
   findAll() {
     return `This action returns all s`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #id `;
+  async findOneUser(id: number) {
+    try {
+      const user =  await this.userRepo.findOneUserById(id)
+      if(!user) {
+        throw new NotFoundException("User not found")
+      }
+      return plainToInstance(User, user)
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Unexpected error');
+    }
   }
 
 }

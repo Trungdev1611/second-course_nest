@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformResponseInterceptor } from './common/interceptor/transform-response.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
+import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
@@ -13,6 +14,12 @@ async function bootstrap() {
 
     // Global Exception Filter wrap error
     app.useGlobalFilters(new AllExceptionsFilter());
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+      }),
+    );
 
     //config swagger
     const config = new DocumentBuilder()

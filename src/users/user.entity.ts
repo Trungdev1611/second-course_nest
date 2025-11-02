@@ -1,6 +1,7 @@
 import { BaseEntity } from "src/common/base.entity";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Exclude } from 'class-transformer';
+import { RoleEntity } from "src/role/role.entity";
 @Entity()
 export class User extends BaseEntity {
   @Column({unique: true})
@@ -19,6 +20,8 @@ export class User extends BaseEntity {
   @Column({default: false})
   is_verify_email: boolean
 
+  @ManyToOne(() => RoleEntity, (role) => role.users)
+  role: RoleEntity
   constructor(partial: Partial<User>) {
     super();
     Object.assign(this, partial);

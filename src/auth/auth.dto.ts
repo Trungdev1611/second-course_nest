@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 export class LoginDTO {
 
-    @ApiProperty({ example: 'user@example.com', description: 'Email của người dùng' })
+    @ApiProperty({ example: 'trungdev1611@gmail.com', description: 'Email của người dùng' })
     @IsEmail()
     email: string
 
@@ -19,7 +19,7 @@ export class VerifyTokenDTO {
 }
 
 export class ResetPassWorDTO {
-    @ApiProperty({ example: 'user@example.com', description: 'Email của người dùng' })
+    @ApiProperty({ example: 'trungdev1611@gmail.com', description: 'Email của người dùng' })
     @IsEmail()
     email: string
 
@@ -31,7 +31,7 @@ export class ResetPassWorDTO {
 }
 
 export class ChangePassWordDTO {
-    @ApiProperty({ example: 'user@example.com', description: 'Email của người dùng' })
+    @ApiProperty({ example: 'trungdev1611@gmail.com', description: 'Email của người dùng' })
     @IsEmail()
     email: string
 
