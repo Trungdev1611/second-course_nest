@@ -8,7 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { LoginDTO, ResetPassWorDTO, VerifyTokenDTO } from './auth.dto';
+import { ChangePassWordDTO, LoginDTO, ResetPassWorDTO, VerifyTokenDTO } from './auth.dto';
 import { CreateUserDTO } from 'src/users/user.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { MailToReceiveTokenDTO } from 'src/email/email.dto';
@@ -176,4 +176,26 @@ export class AuthController {
           console.log(`req.user::`, req.user)
           return req.user
       }
+
+      @Get('change-password')
+      @ApiOperation({
+          summary: 'dùng để đổi mật khẩu người dùng', 
+          description:
+            `Nếu thành công thì người dùng có thể dùng mật khẩu mới để đăng nhập
+            `
+        })
+          @ApiResponse({
+          status: 200,
+          schema: {
+            example: {
+              name: "name user",
+              email: "trungdev1611@gmail.com"
+            },
+          },
+        })
+        async changePassWord(@Body() payload: ChangePassWordDTO ) {
+            return this.authService.changePassWord(payload)
+        }      
+
+
 }

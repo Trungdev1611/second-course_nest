@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { User } from 'src/users/user.entity';
 import { IPayloadToken } from './jwtStrategy';
-import { LoginDTO, ResetPassWorDTO, VerifyTokenDTO } from './auth.dto';
+import { ChangePassWordDTO, LoginDTO, ResetPassWorDTO, VerifyTokenDTO } from './auth.dto';
 import { UserService } from 'src/users/user.service';
 import { BcryptUtil } from 'src/utils/hashPassword';
 import { plainToInstance } from 'class-transformer';
@@ -143,6 +143,27 @@ export class AuthService {
       return  plainToInstance(User, updatedUser)
     } catch (error) {
         throw new BadRequestException(error.message)
+    }
+  }
+
+  async changePassWord(data: ChangePassWordDTO){
+    try {
+      const user = await this.userService.findByEmail(data.email)
+      if(!user) {
+      throw new BadRequestException("The email has not been registered")
+    }
+
+    const isMatch = await BcryptUtil.comparePassword(data.password, user.password);
+        
+    if (!isMatch) {
+        throw new UnauthorizedException('Mật khẩu không đúng');
+      }
+
+     const userSaved = await this.userService.createOrSaveUser({...user, password: data.new_password})
+     return plainToInstance(User, userSaved)
+    } catch (error) {
+      throw new BadRequestException(error.message)
+      
     }
   }
 }

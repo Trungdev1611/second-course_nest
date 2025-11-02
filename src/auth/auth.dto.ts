@@ -29,3 +29,19 @@ export class ResetPassWorDTO {
     password: string
 
 }
+
+export class ChangePassWordDTO {
+    @ApiProperty({ example: 'user@example.com', description: 'Email của người dùng' })
+    @IsEmail()
+    email: string
+
+    @ApiProperty({ example: '123456', description: 'Mật khẩu của người dùng' })
+    @IsString()
+    @IsNotEmpty()
+    password: string
+
+    @ApiProperty({ example: '123456', description: 'Mật khẩu mới của người dùng' })
+    @IsString()
+    @IsNotEmpty()
+    new_password: string
+}

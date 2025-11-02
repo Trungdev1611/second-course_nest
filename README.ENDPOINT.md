@@ -17,9 +17,9 @@
 
 | Method | Endpoint | Description | Request Body | Response |
 |--------|----------|-------------|--------------|----------|
-| GET | `/api/auth/me` | Lấy thông tin user hiện tại | - | `{ user }` |
+| GET | `/api/auth/me` | Lấy thông tin user hiện tại | - | `{ user }` |✅
 | POST | `/api/auth/logout` | Đăng xuất (xóa refresh token) | - | `{ message: "Logged out" }` |
-| PUT | `/api/auth/change-password` | Đổi mật khẩu | `{ currentPassword, newPassword }` | `{ message: "Password changed" }` |
+| PUT | `/api/auth/change-password` | Đổi mật khẩu | `{ currentPassword, newPassword }` | `{ message: "Password changed" }` |✅
 
 ---
 
