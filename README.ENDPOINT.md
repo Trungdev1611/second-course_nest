@@ -29,8 +29,8 @@
 
 | Method | Endpoint | Description | Query Params | Response |
 |--------|----------|-------------|--------------|----------|
-| GET | `/api/users/:id` | Lấy thông tin public profile của user | - | `{ user, stats }` |
-| GET | `/api/users/:id/posts` | Lấy danh sách bài viết của user | `?page=1&limit=20&status=published` | `{ data: [posts], meta }` |
+| GET | `/api/users/:id` | Lấy thông tin public profile của user | - | `{ user, stats }` |✅
+| GET | `/api/users/:id/posts` | Lấy danh sách bài viết public của user | `?page=1&limit=20&status=published` | `{ data: [posts], meta }` |✅
 | GET | `/api/users/:id/stats` | Thống kê user (posts, followers, following count) | - | `{ postCount, followersCount, followingCount, totalViews }` |
 | GET | `/api/users/:id/followers` | Danh sách followers | `?page=1&limit=20` | `{ data: [users], meta }` |
 | GET | `/api/users/:id/following` | Danh sách following | `?page=1&limit=20` | `{ data: [users], meta }` |

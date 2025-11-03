@@ -1,5 +1,6 @@
 import { BaseEntity } from 'src/common/base.entity';
-import { Column, Entity } from 'typeorm';
+import { User } from 'src/users/user.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('blogs')
 export class BlogEntity extends BaseEntity {
@@ -34,8 +35,9 @@ export class BlogEntity extends BaseEntity {
   @Column('simple-array', { nullable: true })
   tags?: string[]; // danh sách tag (lưu dạng "nestjs,typescript,backend")
 
-  // @ManyToOne(() => UserEntity, (user) => user.blogs, { onDelete: 'CASCADE' })
-  // author: UserEntity; // người viết bài
+  @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
+  @JoinColumn({name: "user_id"})
+  user: User; // người viết bài
 
   // @OneToMany(() => CommentEntity, (comment) => comment.blog, { cascade: true })
   // comments: CommentEntity[]; // danh sách bình luận

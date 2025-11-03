@@ -36,6 +36,13 @@ export class UserService {
     return `This action returns all s`;
   }
 
+  async findPostsBelongUser(idUser: number, isPublic: boolean = false) {
+    try {
+        return await this.userRepo.findPostsBelongUser(idUser, isPublic)
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Unexpected error');
+    }
+  }
   async findOneUser(id: number) {
     try {
       const user =  await this.userRepo.findOneUserById(id)

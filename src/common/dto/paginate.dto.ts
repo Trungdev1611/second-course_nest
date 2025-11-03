@@ -16,4 +16,6 @@ export class PaginateAndSearchDTO {
     @IsOptional()
     @ApiPropertyOptional({ example: "", description: "text cần search trong input name" })
     search?: string = ''
+
+    
 }

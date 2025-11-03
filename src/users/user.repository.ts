@@ -26,4 +26,15 @@ export class UserRepository {
   async findOneUserById(id:number) {
     return await this.userRepo.findOne({where: {id}})
   }
+
+  async findPostsBelongUser(idUser: number, isPublic?: boolean) {
+    const query =  this.userRepo.createQueryBuilder("user")
+    .leftJoinAndSelect("user.posts", "post")
+    .where('user.id = :userid', {userid: idUser})
+    if(isPublic) {
+      query.andWhere('post.status = :status', {status: 'published'})
+    }
+    
+    return await query.getOne()
+  }
 }

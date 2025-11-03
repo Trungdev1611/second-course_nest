@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -12,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard, keyjwtGuard } from 'src/guard/jwtAuthGuard';
 import { IdParamDto } from 'src/common/dto/common.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { OptionalJwtGuard } from 'src/guard/OptionalJwtAuth';
 
 
 @ApiTags("User")
@@ -29,6 +31,28 @@ export class UserController {
   findAll() {
     return this.userService.findAll();
   }
+
+  @Get(':id/posts')
+  @ApiBearerAuth()
+  @UseGuards(OptionalJwtGuard)
+  @ApiOperation({
+    summary: 'dùng để lấy danh sách bài posts của 1 user: nếu có token thì lấy tất cả private và public posts, nếu không chỉ lấy public post', 
+    description:
+      `Nếu thành công sẽ trả về list posts.
+      `
+  })
+  @ApiResponse({
+    status: 200,
+    schema: {
+      example: {
+        data: "list posts",
+    },
+      } 
+  })
+  findPostsBelongUser(@Param() param:IdParamDto, @Req() req ) {
+    return this.userService.findPostsBelongUser(param.id, req.user)
+  }
+
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -49,7 +73,6 @@ export class UserController {
     },
   })
   findOne(@Param() param: IdParamDto) {
-    console.log("type of id:::", typeof(param.id))
     return this.userService.findOneUser(param.id);
   }
 
