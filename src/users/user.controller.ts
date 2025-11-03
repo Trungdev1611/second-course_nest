@@ -95,6 +95,25 @@ export class UserController {
     return this.userService.followUserByTheirUserId(param.id, req.user.id)
   }
 
+  
+  @Post(':id/unfollow') //id của ngừoi được follow
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'dùng để un-follow 1 user dựa vào id của họ', 
+    description:
+      `Nếu thành công user đó sẽ được xoá trong danh sách người bạn đang follow.
+      `
+  })
+    @ApiResponse({
+    status: 200,
+    schema: {
+      example: { message: "Followed", isFollowing: true },
+    },
+  })
+  unFollowUserByTheirUserId(@Param() param: IdParamDto, @Req() req) {
+    return this.userService.unFollowUserByTheirUserId(param.id, req.user.id)
+  }
 
 
 }

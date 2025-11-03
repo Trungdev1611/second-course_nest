@@ -98,4 +98,20 @@ export class UserRepository {
   
     return { message: `Followed user ${idUserNeedFollow}`, isFollowing: true };
   }
+
+  async unFollowUserByTheirUserId(idUserNeedUnFollow: number, idCurrentUser: number) {
+    const isFollowed = this.userRepo.createQueryBuilder('user')
+    .leftJoinAndSelect('user.followings', 'following')
+    .where("user.id=:id_current_user", {id_current_user: idCurrentUser})
+    .andWhere('following.id = :idUserNeedUnFollow', {idUserNeedUnFollow})
+
+    if(!isFollowed) {
+      throw new BadRequestException(`You did not follow the target user`);
+    }
+    await this.userRepo.createQueryBuilder().delete().from("user_follows")
+    .where("follower_id=:idCurrentUser", {idCurrentUser})
+    .andWhere("following_id=:idUserNeedUnFollow", {idUserNeedUnFollow})
+    .execute()
+    return { message: `UnFollowed user ${idUserNeedUnFollow}`, isFollowing: true };
+  }
 }

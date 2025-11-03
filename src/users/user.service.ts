@@ -64,4 +64,12 @@ export class UserService {
     }
   }
 
+  async unFollowUserByTheirUserId(idUserNeedFollow: number, idCurrentUser: number) {
+    try {
+      return await  this.userRepo.unFollowUserByTheirUserId(idUserNeedFollow, idCurrentUser)
+    
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Unexpected error');
+    }
+  }
 }
