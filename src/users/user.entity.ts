@@ -1,5 +1,5 @@
 import { BaseEntity } from "src/common/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Exclude } from 'class-transformer';
 import { RoleEntity } from "src/role/role.entity";
 import { BlogEntity } from "src/blogs/blog.entity";
@@ -27,6 +27,26 @@ export class User extends BaseEntity {
 
   @OneToMany(() => BlogEntity, (post) => post.user)
   posts: BlogEntity
+
+  //implement the feature: follow user
+  @ManyToMany(() => User, (user) => user.followers)
+  @JoinTable({
+    name: "user_follows",
+    joinColumn: {
+      name: "follower_id", //người đi follow
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'following_id', //ngừoi được follow
+      referencedColumnName: 'id'
+    }
+
+  })
+  followings: User[] //người mà bạn đang follow
+
+  @ManyToMany(() => User, (user) => user.followings)
+ 
+  followers: User[] //người mà follow mình
 
   constructor(partial: Partial<User>) {
     super();

@@ -55,4 +55,13 @@ export class UserService {
     }
   }
 
+  async followUserByTheirUserId(idUserNeedFollow: number, idCurrentUser: number) {
+    try {
+      await  this.userRepo.followUserByTheirUserId(idUserNeedFollow, idCurrentUser)
+      return { message: `Followed user ${idUserNeedFollow}`, isFollowing: true }
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Unexpected error');
+    }
+  }
+
 }

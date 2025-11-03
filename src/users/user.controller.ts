@@ -76,6 +76,25 @@ export class UserController {
     return this.userService.findOneUser(param.id);
   }
 
+  @Post(':id/follow') //id của ngừoi được follow
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'dùng để follow 1 user dựa vào id của họ', 
+    description:
+      `Nếu thành công user đó sẽ được thêm vào danh sách người bạn đang follow.
+      `
+  })
+    @ApiResponse({
+    status: 200,
+    schema: {
+      example: { message: "Followed", isFollowing: true },
+    },
+  })
+  followUserByTheirUserId(@Param() param: IdParamDto, @Req() req) {
+    return this.userService.followUserByTheirUserId(param.id, req.user.id)
+  }
+
 
 
 }

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
@@ -36,5 +36,66 @@ export class UserRepository {
     }
     
     return await query.getOne()
+  }
+
+  async followUserByTheirUserId(idUserNeedFollow: number, idCurrentUser: number) {
+    if(idCurrentUser === idUserNeedFollow) {
+      throw new BadRequestException(`You can not follow yourseft`);
+    }
+
+    //tìm user hiện tại và danh sách người họ đang following
+    // const curentUser = await this.userRepo.findOne({
+    //   where: {id: idCurrentUser},
+    //   relations: ["followings"]
+    // }) 
+
+    // //tìm user mà người đó muốn following
+    // const userWanttoFollow = await this.userRepo.findOne({
+    //   where: {id: idUserNeedFollow}
+    // })
+
+    // if(!curentUser || !userWanttoFollow) {
+    //   throw new NotFoundException(`User not found`);
+    // }
+    // const checkIsFollowUser = curentUser.followings.some(item => {
+    //   return item.id === userWanttoFollow.id
+    // })
+
+    // if(checkIsFollowUser) {
+    //   throw new BadRequestException(`The user has been followed`);
+    // }
+    // curentUser.followings.push(userWanttoFollow)
+
+    // return await this.userRepo.save(curentUser)
+
+    const [curentUser, userWantToFollow] = await Promise.all([
+      this.userRepo.findOne({ where: { id: idCurrentUser } }),
+      this.userRepo.findOne({ where: { id: idUserNeedFollow } }),
+    ]);
+  
+    if (!curentUser || !userWantToFollow) {
+      throw new NotFoundException(`User not found`);
+    }
+  
+    // Check xem đã follow chưa bằng query trực tiếp
+    const isFollowing = await this.userRepo
+      .createQueryBuilder("user")
+      .leftJoin("user.followings", "followings")
+      .where("user.id = :curId", { curId: idCurrentUser })
+      .andWhere("followings.id = :followId", { followId: idUserNeedFollow })
+      .getOne();
+  
+    if (isFollowing) {
+      throw new BadRequestException(`The user has already been followed`);
+    }
+  
+    // Thêm vào followings mà không cần load tất cả
+    await this.userRepo
+      .createQueryBuilder()
+      .relation(User, "followings")
+      .of(curentUser)
+      .add(userWantToFollow);
+  
+    return { message: `Followed user ${idUserNeedFollow}`, isFollowing: true };
   }
 }
