@@ -43,7 +43,7 @@
 | PUT | `/api/users/:id` | Cập nhật profile (chỉ owner) | `{ fullName, bio, website }` | `{ user }` |
 | POST | `/api/users/:id/avatar` | Upload avatar (chỉ owner) | `FormData: { file }` | `{ avatarUrl }` |
 | POST | `/api/users/:id/follow` | Follow user | - | `{ message: "Followed", isFollowing: true }` |✅
-| DELETE | `/api/users/:id/follow` | Unfollow user | - | `{ message: "Unfollowed", isFollowing: false }` |
+| DELETE | `/api/users/:id/follow` | Unfollow user | - | `{ message: "Unfollowed", isFollowing: false }` |✅
 | GET | `/api/users/me/activity` | Lấy activity feed của user (posts, comments, likes) | `?page=1&limit=20` | `{ data: [activities], meta }` |
 
 ---

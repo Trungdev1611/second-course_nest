@@ -112,6 +112,6 @@ export class UserRepository {
     .where("follower_id=:idCurrentUser", {idCurrentUser})
     .andWhere("following_id=:idUserNeedUnFollow", {idUserNeedUnFollow})
     .execute()
-    return { message: `UnFollowed user ${idUserNeedUnFollow}`, isFollowing: true };
+    return { message: `UnFollowed user ${idUserNeedUnFollow}`, isFollowing: false };
   }
 }

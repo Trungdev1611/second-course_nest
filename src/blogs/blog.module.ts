@@ -4,11 +4,12 @@ import { BlogService } from './blog.service';
 import { BlogRepository } from './blog.repository';
 import { BlogEntity } from './blog.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BlogEntity])],
+  imports: [TypeOrmModule.forFeature([BlogEntity]), RedisModule],
   controllers: [BlogController],
   providers: [BlogService, BlogRepository],
-  exports: []
+  exports: [BlogService]
 })
 export class BlogModule {}

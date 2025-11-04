@@ -34,5 +34,14 @@ export class BlogRepository {
     return this.repo.save(blogData)
   }
 
+  async incrementView(idPost: number, count: number) {
+    await this.repo.increment({ id: idPost }, 'views', count);
+  }
+
+  async getPostById(idPost: number) {
+    return await this.repo.findOne({
+      where: {id: idPost}
+    })
+  }
 
 }

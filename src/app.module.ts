@@ -8,6 +8,7 @@ import dataSourceConfig from './config/db.config';
 import { ConfigModule } from '@nestjs/config';
 import { BlogModule } from './blogs/blog.module';
 import { RedisModule } from './redis/redis.module';
+import { CronJobsModule } from './cronjob/Cronjob.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -21,7 +22,8 @@ import { RedisModule } from './redis/redis.module';
     UserModule,
     AuthModule,
     BlogModule,
-    RedisModule
+    RedisModule,
+    CronJobsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,12 +7,15 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDTO } from './blog.dto';
-import { ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { IdParamDto } from 'src/common/dto/common.dto';
+import { JwtAuthGuard } from 'src/guard/jwtAuthGuard';
 
 @ApiTags('Blogs')
 @Controller('blog')
@@ -61,7 +64,21 @@ export class BlogController {
     return this.blogService.filterAndPaginate(query);
   }
 
-  
+
+  @Get("post/:id/view")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  increView(@Param() param: IdParamDto, @Req() req){
+    return this.blogService.increView(param.id, req.user.id)
+  }
+
+  @Get('post/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async getPostDetail(@Param() param: IdParamDto, @Req() req) {
+    await this.blogService.increView(param.id, req.user.id)
+    return this.blogService.getPostById(param.id);
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateDto: UpdateDto) {

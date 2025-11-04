@@ -19,11 +19,23 @@ export class RedisService implements OnModuleInit {
   }
 
   async get(key: string) {
-    return this.client.get(key);
+    return await this.client.get(key);
   }
 
   async del(key: string) {
-    return this.client.del(key);
+    return await this.client.del(key);
+  }
+
+  async incre(key: string) {
+    return await this.client.incr(key)
+  }
+
+  async expire(key: string, timeInSecond: number) {
+    return await this.client.expire(key, timeInSecond)
+  }
+
+  async getAllKeys(pattern: string) {
+    return await this.client.keys(pattern)
   }
 
 }
