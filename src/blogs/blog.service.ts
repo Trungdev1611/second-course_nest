@@ -1,6 +1,6 @@
 import { RedisService } from './../redis/redis.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateBlogDTO } from './blog.dto';
+import { CreateBlogDTO, queryBlogDTO } from './blog.dto';
 import { BlogRepository } from './blog.repository';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 
@@ -21,7 +21,7 @@ export class BlogService {
 
   }
 
-  async filterAndPaginate(query: PaginateAndSearchDTO) {
+  async filterAndPaginate(query: queryBlogDTO) {
     try {
       const {items, page, per_page, total} =   await this.blogRepo.findAndPaginate(query)
       return {data: items, metadata: {page, per_page, total}}

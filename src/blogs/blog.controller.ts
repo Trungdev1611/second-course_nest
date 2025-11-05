@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
-import { CreateBlogDTO } from './blog.dto';
+import { CreateBlogDTO, queryBlogDTO } from './blog.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { IdParamDto } from 'src/common/dto/common.dto';
@@ -60,7 +60,7 @@ export class BlogController {
         },
       },
     })
-  filterAndPaginate(@Query() query: PaginateAndSearchDTO) {
+  filterAndPaginate(@Query() query: queryBlogDTO) {
     return this.blogService.filterAndPaginate(query);
   }
 

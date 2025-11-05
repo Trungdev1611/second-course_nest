@@ -31,17 +31,17 @@
 |--------|----------|-------------|--------------|----------|
 | GET | `/api/users/:id` | Lấy thông tin public profile của user | - | `{ user, stats }` |✅
 | GET | `/api/users/:id/posts` | Lấy danh sách bài viết public của user | `?page=1&limit=20&status=published` | `{ data: [posts], meta }` |✅
-| GET | `/api/users/:id/stats` | Thống kê user (posts, followers, following count) | - | `{ postCount, followersCount, followingCount, totalViews }` |
-| GET | `/api/users/:id/followers` | Danh sách followers | `?page=1&limit=20` | `{ data: [users], meta }` |
-| GET | `/api/users/:id/following` | Danh sách following | `?page=1&limit=20` | `{ data: [users], meta }` |
-| GET | `/api/users/search` | Tìm kiếm users | `?q=john&limit=10` | `{ data: [users] }` |
+| GET | `/api/users/:id/stats` | Thống kê user (posts, followers, following count) | - | `{ postCount, followersCount, followingCount, totalViews }` |✅
+| GET | `/api/users/:id/followers` | Danh sách followers | `?page=1&limit=20` | `{ data: [users], meta }` |✅
+| GET | `/api/users/:id/following` | Danh sách following | `?page=1&limit=20` | `{ data: [users], meta }` |✅
+| GET | `/api/users/search` | Tìm kiếm users | `?q=john&limit=10` | `{ data: [users] }` |✅
 
 ### Protected Endpoints
 
 | Method | Endpoint | Description | Request Body | Response |
 |--------|----------|-------------|--------------|----------|
 | PUT | `/api/users/:id` | Cập nhật profile (chỉ owner) | `{ fullName, bio, website }` | `{ user }` |
-| POST | `/api/users/:id/avatar` | Upload avatar (chỉ owner) | `FormData: { file }` | `{ avatarUrl }` |
+| POST | `/api/users/:id/avatar` | Upload avatar (chỉ owner) | `FormData: { file }` | `{ avatarUrl }` |✅
 | POST | `/api/users/:id/follow` | Follow user | - | `{ message: "Followed", isFollowing: true }` |✅
 | DELETE | `/api/users/:id/follow` | Unfollow user | - | `{ message: "Unfollowed", isFollowing: false }` |✅
 | GET | `/api/users/me/activity` | Lấy activity feed của user (posts, comments, likes) | `?page=1&limit=20` | `{ data: [activities], meta }` |
@@ -54,13 +54,13 @@
 
 | Method | Endpoint | Description | Query Params | Response |
 |--------|----------|-------------|--------------|----------|
-| GET | `/api/posts` | Danh sách bài viết (published) | `?page=1&limit=20&sort=newest\|popular\|trending&tag=javascript` | `{ data: [posts], meta }` | 
+| GET | `/api/posts` | Danh sách bài viết (published) | `?page=1&limit=20&sort=newest\|popular\|trending&tag=javascript` | `{ data: [posts], meta }` | |✅
 | GET | `/api/posts/:id` | Chi tiết bài viết | - | `{ post, author, tags, stats }` |
 | GET | `/api/posts/slug/:slug` | Lấy bài viết theo slug | - | `{ post }` |
 | GET | `/api/posts/trending` | Bài viết trending | `?period=24h\|7d\|30d&limit=10` | `{ data: [posts] }` |
 | GET | `/api/posts/featured` | Bài viết nổi bật (editor's pick) | `?limit=5` | `{ data: [posts] }` |
 | GET | `/api/posts/:id/related` | Bài viết liên quan (dựa trên tags) | `?limit=5` | `{ data: [posts] }` |
-| POST | `/api/posts/:id/view` | Tăng view count (throttled) | - | `{ viewCount }` |
+| POST | `/api/posts/:id/view` | Tăng view count (throttled) | - | `{ viewCount }` |✅
 
 ### Protected Endpoints (Author/Admin)
 

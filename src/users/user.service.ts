@@ -4,11 +4,13 @@ import { UserRepository } from './user.repository';
 import { BcryptUtil } from 'src/utils/hashPassword';
 import { User } from './user.entity';
 import { plainToInstance } from 'class-transformer';
+import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
+import { UploadService } from 'src/cloudinary/upload.service';
 
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepo: UserRepository ){
+  constructor(private readonly userRepo: UserRepository, private readonly uploadService: UploadService ){
 
   }
   async createOrSaveUser(createDto: CreateUserDTO) {
@@ -70,6 +72,44 @@ export class UserService {
     
     } catch (error) {
       throw new BadRequestException(error.message || 'Unexpected error');
+    }
+  }
+
+  async getListFollower(followerOwnerId:number,  query: PaginateAndSearchDTO) {
+    try {
+      return await this.userRepo.getListFollower(followerOwnerId, query )
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getListFollowings(OwnerIdfollowings:number,  query: PaginateAndSearchDTO) {
+    try {
+      return await this.userRepo.getListFollowings(OwnerIdfollowings, query )
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  
+  async getStats(idTargetUser: number) {
+    try {
+      return await this.userRepo.getInfoStats(idTargetUser)
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async updateAvatarOfUser(idUserToUpdate: number, file: Express.Multer.File) {
+    try {
+    const user =  await this.userRepo.findOneUserById(idUserToUpdate)
+      if(!user) {
+        throw new NotFoundException("User not found")
+      }
+    const imageUrl = await this.uploadService.uploadImage(file )
+    const savedUser =  await this.userRepo.saveUser({...user, image: imageUrl})
+    return plainToInstance(User, { ...savedUser}); 
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 }

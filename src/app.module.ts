@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { BlogModule } from './blogs/blog.module';
 import { RedisModule } from './redis/redis.module';
 import { CronJobsModule } from './cronjob/Cronjob.module';
+import { CouldinaryModule } from './cloudinary/cloudinari.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -23,7 +24,8 @@ import { CronJobsModule } from './cronjob/Cronjob.module';
     AuthModule,
     BlogModule,
     RedisModule,
-    CronJobsModule
+    CronJobsModule,
+    CouldinaryModule
   ],
   controllers: [AppController],
   providers: [AppService],

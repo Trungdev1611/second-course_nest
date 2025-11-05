@@ -1,5 +1,7 @@
 import { IsString, IsOptional, IsEnum, IsInt, Min, IsNumber, IsArray } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
+import { BlogSortType } from './type';
 
 export class CreateBlogDTO {
   @ApiProperty({
@@ -79,3 +81,15 @@ export class CreateBlogDTO {
 }
 
 
+
+
+export class queryBlogDTO extends PaginateAndSearchDTO {
+  @IsOptional()
+  @IsString()
+  @ApiPropertyOptional({
+    description: 'type of post that you want to sort trending | popular | newest',
+    example: 'newest',
+
+  })
+  type?: BlogSortType
+}

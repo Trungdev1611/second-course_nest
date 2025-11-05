@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BlogEntity } from './blog.entity';
-import { CreateBlogDTO } from './blog.dto';
-import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
+import { CreateBlogDTO, queryBlogDTO } from './blog.dto';
+import { BlogSortType } from './type';
+
 
 // From TypeORM v0.3
 
@@ -18,13 +19,24 @@ export class BlogRepository {
     return this.repo.find();
   }
 
-  async findAndPaginate(query: PaginateAndSearchDTO) {
-    const {page = 1, per_page = 20, search = ''} = query
+  async findAndPaginate(query: queryBlogDTO) {
+    const {page = 1, per_page = 20, search = '', type = "newest"} = query
     const skip = (page - 1) * per_page
     const queryBuilder = this.repo.createQueryBuilder('blog')
     .where('blog.title LIKE :search_content OR blog.content LIKE :search_content', {search_content: `%${search}%`})
-    .skip(skip)
-    .take(per_page)
+
+    if (type === BlogSortType.NEWEST) {
+      queryBuilder.orderBy('blog.updated_at', 'DESC');
+    } else if (type === BlogSortType.POPULAR) {
+      queryBuilder.orderBy('blog.views', 'DESC')
+                  .addOrderBy('blog.updated_at', 'DESC');
+    } else if (type === BlogSortType.TRENDING) {
+      queryBuilder.orderBy('blog.likes', 'DESC')   
+                  .addOrderBy('blog.updated_at', 'DESC');
+    }
+
+ // Pagination
+    queryBuilder.skip(skip).take(per_page)
 
     const [items, total] = await queryBuilder.getManyAndCount()
     return {items, total, page, per_page}

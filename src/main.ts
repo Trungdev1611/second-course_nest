@@ -30,7 +30,19 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document); // URL: http://localhost:3000/api/docs
+  SwaggerModule.setup('api/docs', app, document, {
+    customSiteTitle: 'My API Docs',
+    customCss: `
+      .topbar-wrapper::after {
+        content: ' | Total Endpoints: ${Object.keys(document.paths).length}';
+        font-weight: bold;
+        margin-left: 10px;
+        color: #fff;
+      }
+    `
+  }); // URL: http://localhost:3000/api/docs
+
+
 
   await app.listen(process.env.PORT ?? 3000);
 }

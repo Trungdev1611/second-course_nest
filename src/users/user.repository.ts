@@ -1,14 +1,16 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./user.entity";
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { CreateUserDTO } from "./user.dto";
+import { PaginateAndSearchDTO } from "src/common/dto/paginate.dto";
 
 @Injectable()
 export class UserRepository {
   constructor(
     @InjectRepository(User)
-    private readonly userRepo: Repository<User>
+    private readonly userRepo: Repository<User>,
+    private dataSource: DataSource
   ) {}
 
   async findUserByEmail(email: string) {
@@ -100,10 +102,10 @@ export class UserRepository {
   }
 
   async unFollowUserByTheirUserId(idUserNeedUnFollow: number, idCurrentUser: number) {
-    const isFollowed = this.userRepo.createQueryBuilder('user')
+    const isFollowed = await this.userRepo.createQueryBuilder('user')
     .leftJoinAndSelect('user.followings', 'following')
     .where("user.id=:id_current_user", {id_current_user: idCurrentUser})
-    .andWhere('following.id = :idUserNeedUnFollow', {idUserNeedUnFollow})
+    .andWhere('following.id = :idUserNeedUnFollow', {idUserNeedUnFollow}).getOne()
 
     if(!isFollowed) {
       throw new BadRequestException(`You did not follow the target user`);
@@ -114,4 +116,71 @@ export class UserRepository {
     .execute()
     return { message: `UnFollowed user ${idUserNeedUnFollow}`, isFollowing: false };
   }
+
+  async getListFollower(followerOwnerId: number, query: PaginateAndSearchDTO) {
+    const { page = 1, per_page = 10 } = query;
+    const [data, totals] =  await this.userRepo.createQueryBuilder('user')
+    .innerJoin('user.followings', 'f')
+    .where("f.id=:followerOwnerId", {followerOwnerId})
+    .skip((page - 1) * per_page)
+    .take(per_page)
+    .getManyAndCount()
+   
+    // const [data, totals] = await this.userRepo.findAndCount({
+    //   relations: ['followers'],
+    //   where: {
+    //     followers: {
+    //       id: followerOwnerId
+    //     }
+    //   },
+    //   skip: (page - 1) * per_page,
+    //   take: per_page,
+    // })
+
+        return {
+      data: data,
+      metadata: {
+        total: totals,
+        page: page,
+        per_page: per_page
+      }
+    }
+
+  }
+
+  async getListFollowings(followerOwnerId: number, query: PaginateAndSearchDTO) {
+    const { page = 1, per_page = 10 } = query;
+    const [data, totals] =  await this.userRepo.createQueryBuilder('user')
+    .innerJoin('user.followers', 'f')
+    .where("f.id=:followerOwnerId", {followerOwnerId})
+    .skip((page - 1) * per_page)
+    .take(per_page)
+    .getManyAndCount()
+   
+        return {
+      data: data,
+      metadata: {
+        total: totals,
+        page: page,
+        per_page: per_page
+      }
+    }
+  
+  }
+
+  async getInfoStats(idTargetUser: number) {
+    const sql = `
+    SELECT 
+      (SELECT COUNT(*) FROM blogs WHERE user_id = $1) AS post_count,
+      (SELECT COALESCE(SUM(views), 0) FROM blogs WHERE user_id = $1) AS total_views,
+      (SELECT COUNT(*) FROM user_follows WHERE following_id = $1) AS follower_count,
+      (SELECT COUNT(*) FROM user_follows WHERE follower_id = $1) AS following_count
+  `;
+
+  const [result] = await this.dataSource.query(sql, [idTargetUser])
+  return result
+  }
 }
+
+  
+
