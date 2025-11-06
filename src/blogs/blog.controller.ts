@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
-import { CreateBlogDTO, queryBlogDTO } from './blog.dto';
+import { CreateBlogDTO, queryBlogDTO, queryLikeDTO } from './blog.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { IdParamDto } from 'src/common/dto/common.dto';
@@ -80,10 +80,12 @@ export class BlogController {
     return this.blogService.getPostById(param.id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateDto: UpdateDto) {
-  //   return this.blogService.update(+id, updateDto);
-  // }
+  @Post('post/:id/like_unlike')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  likeOrUnlike(@Param() param: IdParamDto, @Req() req, @Query() query: queryLikeDTO) {
+    return this.blogService.likeOrUnlike(param.id,req.user.id, query.type );
+  }
 
   // @Delete(':id')
   // remove(@Param('id') id: string) {

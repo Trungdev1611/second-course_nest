@@ -2,7 +2,7 @@ import { RedisService } from './../redis/redis.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBlogDTO, queryBlogDTO } from './blog.dto';
 import { BlogRepository } from './blog.repository';
-import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
+import { BlogSortType } from './type';
 
 
 @Injectable()
@@ -80,9 +80,15 @@ export class BlogService {
    }
   }
 
-  // update(id: number, updateDto: UpdateDto) {
-  //   return `This action updates a #id `;
-  // }
+ async likeOrUnlike(idPostOrCommentTarget: number, idUser: number, type: 'post' | 'comment') {
+    try {
+     const isLiked =  await this.blogRepo.likeOrUnlike(idPostOrCommentTarget, idUser, type)
+      return {message: `${isLiked ? "Liked": "Unliked"} `}
+    } catch (error) {
+      throw new BadRequestException(error.message)
+    }
+    
+  }
 
   // remove(id: number) {
   //   return `This action removes a #id `;

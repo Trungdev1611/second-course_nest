@@ -1,6 +1,7 @@
+import { CommentEntity } from 'src/comments/comment.entity';
 import { BaseEntity } from 'src/common/base.entity';
 import { User } from 'src/users/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity('blogs')
 export class BlogEntity extends BaseEntity {
@@ -39,8 +40,8 @@ export class BlogEntity extends BaseEntity {
   @JoinColumn({name: "user_id"})
   user: User; // người viết bài
 
-  // @OneToMany(() => CommentEntity, (comment) => comment.blog, { cascade: true })
-  // comments: CommentEntity[]; // danh sách bình luận
+  @OneToMany(() => CommentEntity, (comment) => comment.post, { cascade: true })
+  comments: CommentEntity[]; // danh sách bình luận
 
   constructor(blog: Partial<BlogEntity>) {
     super();

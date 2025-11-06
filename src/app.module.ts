@@ -10,6 +10,7 @@ import { BlogModule } from './blogs/blog.module';
 import { RedisModule } from './redis/redis.module';
 import { CronJobsModule } from './cronjob/Cronjob.module';
 import { CouldinaryModule } from './cloudinary/cloudinari.module';
+import { CommentModule } from './comments/comment.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -25,7 +26,8 @@ import { CouldinaryModule } from './cloudinary/cloudinari.module';
     BlogModule,
     RedisModule,
     CronJobsModule,
-    CouldinaryModule
+    CouldinaryModule,
+    CommentModule
   ],
   controllers: [AppController],
   providers: [AppService],

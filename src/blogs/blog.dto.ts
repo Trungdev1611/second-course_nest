@@ -93,3 +93,14 @@ export class queryBlogDTO extends PaginateAndSearchDTO {
   })
   type?: BlogSortType
 }
+
+export class queryLikeDTO {
+  @IsOptional()
+  @IsString()
+  @ApiPropertyOptional({
+    description: 'type of post that you want to sort post | comment',
+    example: 'post',
+
+  })
+  type: 'post' | 'comment' = 'post'
+}

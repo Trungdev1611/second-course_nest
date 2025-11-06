@@ -3,6 +3,7 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany
 import { Exclude } from 'class-transformer';
 import { RoleEntity } from "src/role/role.entity";
 import { BlogEntity } from "src/blogs/blog.entity";
+import { LikeEntity } from "src/likes/Like.entity";
 @Entity()
 export class User extends BaseEntity {
   @Column({unique: true})
@@ -45,9 +46,10 @@ export class User extends BaseEntity {
   followings: User[] //người mà bạn đang follow
 
   @ManyToMany(() => User, (user) => user.followings)
- 
   followers: User[] //người mà follow mình
 
+  @OneToMany(() => LikeEntity, like => like.user)
+  likes: LikeEntity[]
   constructor(partial: Partial<User>) {
     super();
     Object.assign(this, partial);

@@ -8,9 +8,8 @@ export class TransformResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
         map((data) => {
-            console.log(`datareturn:::`, data)
             return {
-                stauts: "success",
+                status: "success",
                 meta: data?.metadata || null,
                 data: data?.data || data,
             }
