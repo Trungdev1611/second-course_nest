@@ -1,8 +1,9 @@
 import { RedisService } from './../redis/redis.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateBlogDTO, queryBlogDTO } from './blog.dto';
+import { CreateBlogDTO, PaginateandSortCommentDTO, queryBlogDTO } from './blog.dto';
 import { BlogRepository } from './blog.repository';
 import { BlogSortType } from './type';
+import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 
 
 @Injectable()
@@ -88,6 +89,21 @@ export class BlogService {
       throw new BadRequestException(error.message)
     }
     
+  }
+
+  async getListComments(postId: number, query: PaginateandSortCommentDTO) {
+    try {
+      const [data, total] =  await this.blogRepo.getListComments(postId, query)
+      return {
+        data: data,
+        metadata: {
+          isNext: (query.page) * query.per_page < Number(total)  ? true : false,
+          total
+        }
+      }
+    } catch (error) {
+      throw new BadRequestException(error.message)
+    }
   }
 
   // remove(id: number) {

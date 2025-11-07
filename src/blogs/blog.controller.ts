@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
-import { CreateBlogDTO, queryBlogDTO, queryLikeDTO } from './blog.dto';
+import { CreateBlogDTO, PaginateandSortCommentDTO, queryBlogDTO, queryLikeDTO } from './blog.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { IdParamDto } from 'src/common/dto/common.dto';
@@ -87,6 +87,38 @@ export class BlogController {
     return this.blogService.likeOrUnlike(param.id,req.user.id, query.type );
   }
 
+  @Post('post/:id/comments')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'API success - trả về d5 comments 1 lần - nếu isNext true thì vẫn còn load được thêm, nếu false thì hết rồi',
+    schema: {
+      example: {
+        data: [  {
+          "comment_id": 2,
+          "comment_created_at": "2025-11-05T23:27:23.178Z",
+          "comment_content": "It is so exciting. A lot of new information that I can learn",
+          "user_id": 3,
+          "user_name": "user-test",
+          "user_email": "trungdev1611@gmail.com",
+          "like_count": "1"
+        },],
+        metadata:  {
+          isNext: "true /false",
+          total: "number"
+        }
+      },
+    },
+  })
+  async getListComments(@Param() param: IdParamDto, @Query() query: PaginateandSortCommentDTO) {
+    query.per_page = 5
+    return await this.blogService.getListComments(param.id, query)
+  }
+
+
+
+  
   // @Delete(':id')
   // remove(@Param('id') id: string) {
   //   return this.blogService.remove(+id);

@@ -2,6 +2,7 @@ import { IsString, IsOptional, IsEnum, IsInt, Min, IsNumber, IsArray } from 'cla
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { BlogSortType } from './type';
+import { Type } from 'class-transformer';
 
 export class CreateBlogDTO {
   @ApiProperty({
@@ -103,4 +104,15 @@ export class queryLikeDTO {
 
   })
   type: 'post' | 'comment' = 'post'
+}
+
+export class PaginateandSortCommentDTO extends PaginateAndSearchDTO {
+  @ApiPropertyOptional({
+      description: 'Trường để sort comment',
+      example: 'popular',
+      enum: ['newest', 'oldest', 'popular'],
+    })
+  @IsOptional()
+  @IsEnum(['newest', 'oldest', 'popular'])
+  sort: "newest" | "oldest" | "popular" = "popular"
 }

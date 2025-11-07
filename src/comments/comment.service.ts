@@ -1,11 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CommentCreateDTO } from './comment.dto';
+import { CommentRepository } from './comment.repository';
 
 
 @Injectable()
 export class CommentService {
-  create(createDto: CommentCreateDTO) {
-    return 'This action adds a new ';
+    constructor(private readonly commentRepo: CommentRepository ) {
+
+    }
+  create(createDto: CommentCreateDTO, idCurrentUser: number, idPost: number) {
+    try {
+        return this.commentRepo.createOrSave(createDto, idCurrentUser,idPost )
+    } catch (error) {
+        throw new BadRequestException(error.message)
+    }
+    
   }
 
 //   findAll() {

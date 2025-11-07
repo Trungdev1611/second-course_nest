@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { BlogEntity } from './blog.entity';
-import { CreateBlogDTO, queryBlogDTO } from './blog.dto';
+import { CreateBlogDTO, PaginateandSortCommentDTO, queryBlogDTO } from './blog.dto';
 import { BlogSortType } from './type';
 import { LikeEntity } from 'src/likes/Like.entity';
+import { CommentEntity } from 'src/comments/comment.entity';
+import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 
 
 // From TypeORM v0.3
@@ -86,6 +88,32 @@ export class BlogRepository {
     });
 
 
+  }
+
+async getListComments(postId: number,query: PaginateandSortCommentDTO ) {
+    const repository = this.dataSource.getRepository(CommentEntity).createQueryBuilder("comment")
+    .leftJoin("comment.post", "post")
+    .leftJoin('comment.likes', 'like', 'like.likeable_type = :type', { type: 'comment' })
+    .leftJoin('comment.user', 'user')
+    .where("post.id=:postId", {postId})
+
+  const qb =  repository
+    // .andWhere("like.likeable_type=:type", {type: "comment"})
+    .select(["comment.id", "comment.content", "comment.created_at", "user.id", "user.name", "user.email", "user.email"])
+    .addSelect("COUNT(like.id)", "like_count")
+    .groupBy("comment.id")
+    .addGroupBy("user.id")
+    if(query.sort === "popular") {
+      qb.orderBy("like_count", "DESC")
+    }
+
+    const data = await qb
+    .skip((query.page - 1) * query.per_page)
+    .limit(query.per_page).getRawMany()
+
+    const countQb = repository.clone(); //phải clone ra vì không nó ăn theo qb
+    const total = await countQb.getCount()
+    return [data, total]
   }
 
 }

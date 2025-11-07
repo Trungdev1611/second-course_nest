@@ -4,6 +4,7 @@ import { Exclude } from 'class-transformer';
 import { RoleEntity } from "src/role/role.entity";
 import { BlogEntity } from "src/blogs/blog.entity";
 import { LikeEntity } from "src/likes/Like.entity";
+import { CommentEntity } from "src/comments/comment.entity";
 @Entity()
 export class User extends BaseEntity {
   @Column({unique: true})
@@ -50,6 +51,10 @@ export class User extends BaseEntity {
 
   @OneToMany(() => LikeEntity, like => like.user)
   likes: LikeEntity[]
+
+  @OneToMany(() => CommentEntity, comment => comment.user)
+  comments: CommentEntity[]
+  
   constructor(partial: Partial<User>) {
     super();
     Object.assign(this, partial);

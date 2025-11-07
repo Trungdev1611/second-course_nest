@@ -27,8 +27,9 @@ export class LikeEntity extends BaseEntity {
     likeable_id: number //post id || comment_id
 
     @ManyToOne(() => CommentEntity, comment => comment.likes)
-    @JoinColumn({ name: 'comment_id' })
+    @JoinColumn({ name: 'likeable_id' })
     comment: CommentEntity
+
     constructor(blog: Partial<LikeEntity>) {
     super();
     Object.assign(this, blog);
