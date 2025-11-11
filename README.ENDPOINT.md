@@ -99,7 +99,7 @@
 
 | Method | Endpoint | Description | Query Params | Response |
 |--------|----------|-------------|--------------|----------|
-| GET | `/api/posts/:id/comments` | Lấy comments của bài viết (nested) | `?page=1&limit=20&sort=newest\|oldest\|popular` | `{ data: [comments tree], meta }` |
+| GET | `/api/posts/:id/comments` | Lấy comments của bài viết (nested) | `?page=1&limit=20&sort=newest\|oldest\|popular` | `{ data: [comments tree], meta }` |✅
 | GET | `/api/comments/:id/replies` | Lấy replies của comment | `?page=1&limit=10` | `{ data: [comments], meta }` |
 
 ### Protected Endpoints

@@ -4,12 +4,16 @@ import { CreateBlogDTO, PaginateandSortCommentDTO, queryBlogDTO } from './blog.d
 import { BlogRepository } from './blog.repository';
 import { BlogSortType } from './type';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
+import { DataSource } from 'typeorm';
+import { CommentEntity } from 'src/comments/comment.entity';
 
 
 @Injectable()
 export class BlogService {
   constructor(private readonly blogRepo: BlogRepository, 
-    private readonly redisService: RedisService) {
+    private readonly redisService: RedisService,
+    private dataSource: DataSource
+  ) {
 
   }
   async create(createDto: CreateBlogDTO) {
@@ -101,6 +105,14 @@ export class BlogService {
           total
         }
       }
+    } catch (error) {
+      throw new BadRequestException(error.message)
+    }
+  }
+
+  async getListReplies(idPost: number, idComment: number) {
+    try {
+      return await this.blogRepo.getListReplies(idPost, idComment)
     } catch (error) {
       throw new BadRequestException(error.message)
     }

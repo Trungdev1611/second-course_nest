@@ -43,6 +43,11 @@ export class BlogEntity extends BaseEntity {
   @OneToMany(() => CommentEntity, (comment) => comment.post, { cascade: true })
   comments: CommentEntity[]; // danh sách bình luận
 
+  // ✅ Comment: LikeEntity dùng polymorphic pattern (likeable_type + likeable_id)
+  // Để get likes, query: WHERE likeable_type = 'post' AND likeable_id = post.id
+  // @OneToMany(() => LikeEntity, (like) => like.post)
+  // postLikes: LikeEntity[]
+
   constructor(blog: Partial<BlogEntity>) {
     super();
     Object.assign(this, blog);

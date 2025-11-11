@@ -8,3 +8,15 @@ export class IdParamDto {
   @IsNumber()
   id: number;
 }
+
+export class PostCommentParamDto {
+  @ApiProperty({ example: 1, description: "ID của bài post" })
+  @Type(() => Number)
+  @IsNumber()
+  idPost: number;
+
+  @ApiProperty({ example: 1, description: "ID của comment" })
+  @Type(() => Number)
+  @IsNumber()
+  idComment: number;
+}

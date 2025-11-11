@@ -2,7 +2,7 @@ import { BlogEntity } from "src/blogs/blog.entity";
 import { BaseEntity } from "src/common/base.entity";
 import { LikeEntity } from "src/likes/Like.entity";
 import { User } from "src/users/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 
 @Entity({name: "comments"})
 export class CommentEntity extends BaseEntity{
@@ -23,7 +23,19 @@ export class CommentEntity extends BaseEntity{
     @Column({name: "user_id"})
     userId: number
 
-    @OneToMany(() => LikeEntity, like => like.comment)
-    likes: LikeEntity[]
+    // ✅ Comment: LikeEntity dùng polymorphic pattern, không có explicit relationship
+    // Để get likes, query: WHERE likeable_type = 'comment' AND likeable_id = comment.id
+    // @OneToMany(() => LikeEntity, like => like.comment)
+    // likes: LikeEntity[]
+
+    @Column({name: "parent_id", nullable: true})
+    parentId?: number
+
+    @ManyToOne (() => CommentEntity, parentComment => parentComment.replies, {nullable: true, onDelete: "CASCADE"})
+    @JoinColumn({name: "parent_id"})
+    parentComment?: CommentEntity
+ 
+    @OneToMany(() => CommentEntity, reply => reply.parentComment)
+    replies: CommentEntity[]
 
 }

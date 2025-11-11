@@ -31,4 +31,6 @@ export class CommentRepository {
     // const commentInstance =  {...comment,userId:idUser, post: post  }
     return this.repository.save(commentInstance)
   }
+
+
 }

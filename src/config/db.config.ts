@@ -13,8 +13,16 @@ export const dataSourceConfig: PostgresConnectionOptions = {
   entities: [__dirname + "/../**/*.entity.{ts,js}"],
   // synchronize: true,
   migrationsTableName: 'migrations',
-  migrations: [__dirname + '/../migrations/**/*.ts'], //and config trong package.json,
-  logging: ['query', 'error', 'warn']
+  // ✅ Fix: Thêm connection pool config để tránh connection leak
+  extra: {
+    max: 10,
+    connectionTimeoutMillis: 5000,
+    idleTimeoutMillis: 30000,
+  },
+  // ✅ Fix: Chỉ load files trực tiếp trong migrations folder, không recursive
+  migrations: [__dirname + '/../migrations/*.ts'],
+  // ✅ Fix: Giảm logging (chỉ log error khi migration để tránh treo)
+  logging: ['error', 'query']
 
 }
 

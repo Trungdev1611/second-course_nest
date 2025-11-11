@@ -13,7 +13,7 @@ import { CommentService } from './comment.service';
 import { CommentCreateDTO } from './comment.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guard/jwtAuthGuard';
-import { IdParamDto } from 'src/common/dto/common.dto';
+import { IdParamDto, PostCommentParamDto } from 'src/common/dto/common.dto';
 
 @ApiTags("Comment")
 @Controller('comment')
@@ -35,6 +35,8 @@ export class CommentController {
   create(@Body() createDto: CommentCreateDTO, @Req() req, @Param() param: IdParamDto ) {
     return this.commentService.create(createDto, req.user.id, param.id );
   }
+
+  
 
 //   @Get()
 //   findAll() {

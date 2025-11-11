@@ -93,27 +93,56 @@ export class BlogRepository {
 async getListComments(postId: number,query: PaginateandSortCommentDTO ) {
     const repository = this.dataSource.getRepository(CommentEntity).createQueryBuilder("comment")
     .leftJoin("comment.post", "post")
-    .leftJoin('comment.likes', 'like', 'like.likeable_type = :type', { type: 'comment' })
+    .leftJoin("likes", 'like', 'like.likeable_id = comment.id AND like.likeable_type = :type', { type: 'comment' })
     .leftJoin('comment.user', 'user')
+
+    .leftJoin('comment.replies', 'reply')
     .where("post.id=:postId", {postId})
+    .andWhere("comment.parent_id IS NULL")
+    
+    const countQb = repository.clone(); //phải clone ra vì không nó ăn theo qb
 
   const qb =  repository
     // .andWhere("like.likeable_type=:type", {type: "comment"})
     .select(["comment.id", "comment.content", "comment.created_at", "user.id", "user.name", "user.email", "user.email"])
-    .addSelect("COUNT(like.id)", "like_count")
+    .addSelect("COUNT( DISTINCT like.id)", "like_count")
+    .addSelect("COUNT(DISTINCT reply.id)", "reply_count" )
     .groupBy("comment.id")
     .addGroupBy("user.id")
-    if(query.sort === "popular") {
+    // .addGroupBy("reply.id")
+    if(query.sort ==="newest") {
+      qb.orderBy("comment.created_at", "DESC")
+    }
+    else if(query.sort === "oldest") {
+      qb.orderBy("comment.created_at", "ASC")
+    }
+    else //(query.sort === "popular")
+     {
       qb.orderBy("like_count", "DESC")
     }
+    
 
     const data = await qb
     .skip((query.page - 1) * query.per_page)
     .limit(query.per_page).getRawMany()
 
-    const countQb = repository.clone(); //phải clone ra vì không nó ăn theo qb
     const total = await countQb.getCount()
     return [data, total]
+  }
+
+  async getListReplies(idPost: number, idComment: number) {
+
+    return await this.dataSource.getRepository(CommentEntity)
+    .find({
+      where: {
+        postId: idPost,
+        parentId: idComment,
+        
+      },
+      relations: {
+        user: true
+      }
+    })
   }
 
 }

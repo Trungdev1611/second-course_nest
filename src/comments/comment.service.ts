@@ -8,14 +8,16 @@ export class CommentService {
     constructor(private readonly commentRepo: CommentRepository ) {
 
     }
-  create(createDto: CommentCreateDTO, idCurrentUser: number, idPost: number) {
+  async create(createDto: CommentCreateDTO, idCurrentUser: number, idPost: number) {
     try {
-        return this.commentRepo.createOrSave(createDto, idCurrentUser,idPost )
+        return await this.commentRepo.createOrSave(createDto, idCurrentUser,idPost )
     } catch (error) {
         throw new BadRequestException(error.message)
     }
     
   }
+
+
 
 //   findAll() {
 //     return `This action returns all s`;

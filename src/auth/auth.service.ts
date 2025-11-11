@@ -23,7 +23,7 @@ export class AuthService {
 
   }
 
-  async generateToken(user: Partial<User>, expiresIn: string | number = '1h'): Promise<string> {
+  async generateToken(user: Partial<User>, expiresIn: string | number = '1d'): Promise<string> {
     const payload: IPayloadToken = {id: user.id, email: user.email, name: user.name}
     return this.jwtService.signAsync(payload, {expiresIn: expiresIn} as JwtSignOptions)
   }

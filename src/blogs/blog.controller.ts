@@ -14,8 +14,9 @@ import { BlogService } from './blog.service';
 import { CreateBlogDTO, PaginateandSortCommentDTO, queryBlogDTO, queryLikeDTO } from './blog.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse,  ApiTags } from '@nestjs/swagger';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
-import { IdParamDto } from 'src/common/dto/common.dto';
+import { IdParamDto, PostCommentParamDto } from 'src/common/dto/common.dto';
 import { JwtAuthGuard } from 'src/guard/jwtAuthGuard';
+import { CommentCreateDTO } from 'src/comments/comment.dto';
 
 @ApiTags('Blogs')
 @Controller('blog')
@@ -92,7 +93,9 @@ export class BlogController {
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
-    description: 'API success - trả về d5 comments 1 lần - nếu isNext true thì vẫn còn load được thêm, nếu false thì hết rồi',
+    description: `API success - trả về d5 comments 1 lần - nếu isNext true thì vẫn còn load được thêm, nếu false thì hết rồi
+    trả về số lượng like, và số lượng reply. khi bấm vào chi tiết số lượng reply sẽ gọi api lấy detail replies
+    `,
     schema: {
       example: {
         data: [  {
@@ -102,7 +105,8 @@ export class BlogController {
           "user_id": 3,
           "user_name": "user-test",
           "user_email": "trungdev1611@gmail.com",
-          "like_count": "1"
+          "like_count": "1",
+          "repy_count": "4"
         },],
         metadata:  {
           isNext: "true /false",
@@ -117,6 +121,22 @@ export class BlogController {
   }
 
 
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Get list replies of an specific comment",
+   
+  })
+  @ApiResponse({
+    status: 201,
+    description: "If success, we will get an list",
+    // description: 'API success - trả về data theo client query và pagination',
+    type:  [CommentCreateDTO],
+  })
+  @Get(":idPost/comment/:idComment")
+  async getListReplies(@Param() param: PostCommentParamDto ){
+      return await this.blogService.getListReplies(param.idPost, param.idComment)
+  }
 
   
   // @Delete(':id')

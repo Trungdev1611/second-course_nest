@@ -15,7 +15,7 @@ import { RedisModule } from 'src/redis/redis.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get('jwtkey') || 'superSecretKey',
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '1d' },
       }),
     }),
     UserModule,
