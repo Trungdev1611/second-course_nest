@@ -10,7 +10,7 @@ export class IdParamDto {
 }
 
 export class PostCommentParamDto {
-  @ApiProperty({ example: 1, description: "ID của bài post" })
+  @ApiProperty({ example: 20, description: "ID của bài post" })
   @Type(() => Number)
   @IsNumber()
   idPost: number;
@@ -20,3 +20,4 @@ export class PostCommentParamDto {
   @IsNumber()
   idComment: number;
 }
+

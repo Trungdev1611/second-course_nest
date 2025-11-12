@@ -45,6 +45,7 @@ export class BlogService {
         return
       }
       await this.redisService.incre(key)
+      return {message: "add view to redis success"}
       // await this.redisService.expire(key, 300)
     } catch (error) {
       throw new BadRequestException("error in increase view")
@@ -117,6 +118,15 @@ export class BlogService {
       throw new BadRequestException(error.message)
     }
   }
+
+  async getPostRelated(idTargetPost: number) {
+    try {
+      return await this.blogRepo.getPostRelated(idTargetPost)
+    } catch (error) {
+      throw new BadRequestException(error.message)
+    }
+  }
+  
 
   // remove(id: number) {
   //   return `This action removes a #id `;

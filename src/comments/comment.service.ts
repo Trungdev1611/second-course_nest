@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { CommentCreateDTO } from './comment.dto';
+import { CommentCreateDTO, EditCommentDTO } from './comment.dto';
 import { CommentRepository } from './comment.repository';
 
 
@@ -17,21 +17,28 @@ export class CommentService {
     
   }
 
+  async createReply(createDto: CommentCreateDTO, idCurrentUser: number, idPost: number, idParentComment: number) {
+    try {
+        return await this.commentRepo.createOrSaveReply(createDto, idCurrentUser,idPost, idParentComment )
+    } catch (error) {
+        throw new BadRequestException(error.message)
+    }
+    
+  }
 
-
-//   findAll() {
-//     return `This action returns all s`;
-//   }
-
-//   findOne(id: number) {
-//     return `This action returns a #id `;
-//   }
-
-//   update(id: number, updateDto: UpdateDto) {
-//     return `This action updates a #id `;
-//   }
-
-//   remove(id: number) {
-//     return `This action removes a #id `;
-//   }
+  async editComment(editDTO: EditCommentDTO, userId: number, idComment: number) {
+    try {
+      return await this.commentRepo.editComment(editDTO, userId, idComment)
+    } catch (error) {
+      throw new BadRequestException(error.message)
+    }
+  }
+  
+ async removeComment(id: number) {
+    try {
+      return await this.commentRepo.removeComment(id)
+    } catch (error) {
+      throw new BadRequestException(error.message)
+    }
+  }
 }

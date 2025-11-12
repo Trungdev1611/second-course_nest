@@ -100,16 +100,16 @@
 | Method | Endpoint | Description | Query Params | Response |
 |--------|----------|-------------|--------------|----------|
 | GET | `/api/posts/:id/comments` | Lấy comments của bài viết (nested) | `?page=1&limit=20&sort=newest\|oldest\|popular` | `{ data: [comments tree], meta }` |✅
-| GET | `/api/comments/:id/replies` | Lấy replies của comment | `?page=1&limit=10` | `{ data: [comments], meta }` |
+| GET | `/api/comments/:id/replies` | Lấy replies của comment | `?page=1&limit=10` | `{ data: [comments], meta }` |✅
 
 ### Protected Endpoints
 
 | Method | Endpoint | Description | Request Body | Response |
 |--------|----------|-------------|--------------|----------|
-| POST | `/api/posts/:id/comments` | Thêm comment mới | `{ content, parentId? }` | `{ comment }` |
-| PUT | `/api/comments/:id` | Sửa comment (owner/admin) | `{ content }` | `{ comment }` |
+| POST | `/api/posts/:id/comments` | Thêm comment mới | `{ content, parentId? }` | `{ comment }` |✅
+| PUT | `/api/comments/:id` | Sửa comment (owner/admin) | `{ content }` | `{ comment }` | |✅
 | DELETE | `/api/comments/:id` | Soft delete comment (owner/admin) | - | `{ message: "Comment deleted" }` |
-| POST | `/api/comments/:id/reply` | Reply comment (shorthand) | `{ content }` | `{ comment }` |
+| POST | `/api/comments/:id/reply` | Reply comment (shorthand) | `{ content }` | `{ comment }` | |✅
 
 ---
 
@@ -119,11 +119,11 @@
 
 | Method | Endpoint | Description | Request Body | Response |
 |--------|----------|-------------|--------------|----------|
-| POST | `/api/posts/:id/like` | Like bài viết | - | `{ message: "Liked", likeCount, isLiked: true }` |
-| DELETE | `/api/posts/:id/like` | Unlike bài viết | - | `{ message: "Unliked", likeCount, isLiked: false }` |
-| POST | `/api/comments/:id/like` | Like comment | - | `{ message: "Liked", likeCount, isLiked: true }` |
-| DELETE | `/api/comments/:id/like` | Unlike comment | - | `{ message: "Unliked", likeCount, isLiked: false }` |
-| GET | `/api/posts/:id/likes` | Danh sách users đã like | `?page=1&limit=20` | `{ data: [users], meta }` |
+| POST | `/api/posts/:id/like` | Like bài viết | - | `{ message: "Liked", likeCount, isLiked: true }` | đã lấy like cùng với post ✅
+| DELETE | `/api/posts/:id/like` | Unlike bài viết | - | `{ message: "Unliked", likeCount, isLiked: false }` | đã có api like - unlike ✅
+| POST | `/api/comments/:id/like` | Like comment | - | `{ message: "Liked", likeCount, isLiked: true }` | đã tính số likes trong comment  post/:id/comments ✅
+| DELETE | `/api/comments/:id/like` | Unlike comment | - | `{ message: "Unliked", likeCount, isLiked: false }` | đã có api like - unlike ✅
+| GET | `/api/posts/:id/likes` | Danh sách users đã like | `?page=1&limit=20` | `{ data: [users], meta }` | đã trả về user trong api post/:id/comments ✅
 
 ---
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { BlogEntity } from './blog.entity';
@@ -27,7 +27,8 @@ export class BlogRepository {
     const {page = 1, per_page = 20, search = '', type = "newest"} = query
     const skip = (page - 1) * per_page
     const queryBuilder = this.repo.createQueryBuilder('blog')
-    .where('blog.title LIKE :search_content OR blog.content LIKE :search_content', {search_content: `%${search}%`})
+    .where('blog.title LIKE :search_content OR blog.content LIKE :search_content', 
+      {search_content: `%${search}%`})
 
     if (type === BlogSortType.NEWEST) {
       queryBuilder.orderBy('blog.updated_at', 'DESC');
@@ -133,16 +134,52 @@ async getListComments(postId: number,query: PaginateandSortCommentDTO ) {
   async getListReplies(idPost: number, idComment: number) {
 
     return await this.dataSource.getRepository(CommentEntity)
-    .find({
-      where: {
-        postId: idPost,
-        parentId: idComment,
+    .createQueryBuilder('comment')
+    .leftJoin('comment.user', 'user')
+    .where("comment.post_id=:idPost", {idPost})
+    .andWhere("comment.parent_id=:idComment", {idComment})
+    .select(["comment.id", "comment.content", "comment.post_id", "user.id", "user.name", "user.image"])
+    .getRawMany()
+    // .find({
+    //   where: {
+    //     postId: idPost,
+    //     parentId: idComment,
         
-      },
-      relations: {
-        user: true
-      }
-    })
+    //   },
+    //   relations: {
+    //     user: true
+    //   }
+    // })
   }
 
+  async getPostRelated(idTargetPost: number) {
+    const query = `
+      SELECT p.id, p.title, 
+             CARDINALITY(
+               ARRAY(
+                 SELECT UNNEST(string_to_array(p.tags, ',')) 
+                 INTERSECT 
+                 SELECT UNNEST(string_to_array((SELECT tags FROM blogs WHERE id = $1), ','))
+               )
+             ) AS "commonTagsCount"
+      FROM blogs p
+      WHERE p.id != $1
+        AND ARRAY_LENGTH(
+              ARRAY(
+                SELECT UNNEST(string_to_array(p.tags, ',')) 
+                INTERSECT 
+                SELECT UNNEST(string_to_array((SELECT tags FROM blogs WHERE id = $1), ','))
+              ), 1
+            ) > 0
+      ORDER BY "commonTagsCount" DESC
+      LIMIT 5;
+    `;
+  
+    const data = await this.dataSource.query(query, [idTargetPost]);
+    if (!data || data.length === 0) {
+      throw new BadRequestException("Post not found");
+    }
+    return data;
+  }
+  
 }

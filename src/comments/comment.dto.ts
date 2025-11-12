@@ -11,3 +11,6 @@ export class CommentCreateDTO {
     content: string
 }
 
+export class EditCommentDTO extends CommentCreateDTO {
+  
+}

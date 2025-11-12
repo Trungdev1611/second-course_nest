@@ -17,6 +17,7 @@ import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { IdParamDto, PostCommentParamDto } from 'src/common/dto/common.dto';
 import { JwtAuthGuard } from 'src/guard/jwtAuthGuard';
 import { CommentCreateDTO } from 'src/comments/comment.dto';
+import { BlogEntity } from './blog.entity';
 
 @ApiTags('Blogs')
 @Controller('blog')
@@ -51,15 +52,16 @@ export class BlogController {
     @ApiResponse({
       status: 201,
       description: 'API success - trả về data theo client query và pagination',
-      schema: {
-        example: {
-          data: 'list blogs array',
-          metadata: {
-            total: 100,
-          },
+      type: [CreateBlogDTO],
+      // schema: {
+      //   example: {
+      //     data: [BlogEntity],
+      //     metadata: {
+      //       total: 100,
+      //     },
 
-        },
-      },
+      //   },
+      // },
     })
   filterAndPaginate(@Query() query: queryBlogDTO) {
     return this.blogService.filterAndPaginate(query);
@@ -69,6 +71,18 @@ export class BlogController {
   @Get("post/:id/view")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: `Tăng view khi vào xem post`,
+    schema: {
+      example: {
+        data:   {
+          message: "add view to redis success"
+        },
+      },
+    },
+  })
+  @ApiBearerAuth()
   increView(@Param() param: IdParamDto, @Req() req){
     return this.blogService.increView(param.id, req.user.id)
   }
@@ -76,6 +90,16 @@ export class BlogController {
   @Get('post/:id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: `Get detail of a post with its ID`,
+    type: CreateBlogDTO
+    // schema: {
+    //   example: {
+    //     data:  BlogEntity,
+    //   },
+    // },
+  })
   async getPostDetail(@Param() param: IdParamDto, @Req() req) {
     await this.blogService.increView(param.id, req.user.id)
     return this.blogService.getPostById(param.id);
@@ -83,6 +107,18 @@ export class BlogController {
 
   @Post('post/:id/like_unlike')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: `Action like hoặc unlike 1 post`,
+    schema: {
+      example: {
+        data:   {
+         message: `Liked/Unliked` 
+        },
+      },
+    },
+  })
   @ApiBearerAuth()
   likeOrUnlike(@Param() param: IdParamDto, @Req() req, @Query() query: queryLikeDTO) {
     return this.blogService.likeOrUnlike(param.id,req.user.id, query.type );
@@ -130,17 +166,35 @@ export class BlogController {
   @ApiResponse({
     status: 201,
     description: "If success, we will get an list",
-    // description: 'API success - trả về data theo client query và pagination',
-    type:  [CommentCreateDTO],
-  })
+    example: {
+      data: [
+        {
+          "comment_id": 105,
+          "comment_content": "hvecirackw",
+          "user_id": 11,
+          "user_name": "user-test5",
+          "user_image": "image-test",
+          "post_id": 20
+    }]
+  }})
   @Get(":idPost/comment/:idComment")
   async getListReplies(@Param() param: PostCommentParamDto ){
       return await this.blogService.getListReplies(param.idPost, param.idComment)
   }
 
-  
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.blogService.remove(+id);
-  // }
+  @ApiOperation({
+    summary: "Get 5 items (trùng tag với tags của post hiện tại) id and title of these posts which related to this post",
+   
+  })
+  @ApiResponse({
+    status: 201,
+    description: "If success, we will get an list",
+    type: [CreateBlogDTO]  
+  })
+  @Get(":id/related")
+  async getPostRelated(@Param() param: IdParamDto){
+      return await this.blogService.getPostRelated(param.id)
+  }
+
 }
+
