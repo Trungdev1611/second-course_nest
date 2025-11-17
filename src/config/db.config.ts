@@ -2,6 +2,7 @@
 import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import * as dotenv from 'dotenv';
+import { QueryLoggerSubscriber } from 'src/common/logger/query';
 dotenv.config(); 
 export const dataSourceConfig: PostgresConnectionOptions = {
   type: 'postgres',
@@ -22,7 +23,10 @@ export const dataSourceConfig: PostgresConnectionOptions = {
   // ✅ Fix: Chỉ load files trực tiếp trong migrations folder, không recursive
   migrations: [__dirname + '/../migrations/*.ts'],
   // ✅ Fix: Giảm logging (chỉ log error khi migration để tránh treo)
-  logging: ['error', 'query']
+  logging: ['error'],
+  // maxQueryExecutionTime: -1,
+  // logger: new SingleLogQueryLogger(),
+  subscribers: [QueryLoggerSubscriber],
 
 }
 

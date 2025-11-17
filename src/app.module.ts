@@ -11,6 +11,8 @@ import { RedisModule } from './redis/redis.module';
 import { CronJobsModule } from './cronjob/Cronjob.module';
 import { CouldinaryModule } from './cloudinary/cloudinari.module';
 import { CommentModule } from './comments/comment.module';
+import { BlogTagsModule } from './blog_tags/blog_tags.module';
+import { TagModule } from './tags/tag.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -27,7 +29,9 @@ import { CommentModule } from './comments/comment.module';
     RedisModule,
     CronJobsModule,
     CouldinaryModule,
-    CommentModule
+    CommentModule,
+    BlogTagsModule,
+    TagModule
   ],
   controllers: [AppController],
   providers: [AppService],

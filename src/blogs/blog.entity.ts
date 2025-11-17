@@ -1,3 +1,4 @@
+import { Blog_Tags_Entity } from 'src/blog_tags/blog_tags.entity';
 import { CommentEntity } from 'src/comments/comment.entity';
 import { BaseEntity } from 'src/common/base.entity';
 import { User } from 'src/users/user.entity';
@@ -33,8 +34,11 @@ export class BlogEntity extends BaseEntity {
   @Column({ type: 'int', nullable: true })
   reading_time?: number; // thời gian đọc ước lượng (phút)
 
-  @Column('simple-array', { nullable: true })
-  tags?: string[]; // danh sách tag (lưu dạng "nestjs,typescript,backend")
+  // @Column('simple-array', { nullable: true })
+  // tags?: string[]; // danh sách tag (lưu dạng "nestjs,typescript,backend")
+
+  @OneToMany(() => Blog_Tags_Entity, blog_tags => blog_tags.posts)
+  blog_tags: Blog_Tags_Entity[]
 
   @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
   @JoinColumn({name: "user_id"})

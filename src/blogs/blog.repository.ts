@@ -7,6 +7,7 @@ import { BlogSortType } from './type';
 import { LikeEntity } from 'src/likes/Like.entity';
 import { CommentEntity } from 'src/comments/comment.entity';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
+import { Blog_Tags_Entity } from 'src/blog_tags/blog_tags.entity';
 
 
 // From TypeORM v0.3
@@ -27,9 +28,22 @@ export class BlogRepository {
     const {page = 1, per_page = 20, search = '', type = "newest"} = query
     const skip = (page - 1) * per_page
     const queryBuilder = this.repo.createQueryBuilder('blog')
-    .where('blog.title LIKE :search_content OR blog.content LIKE :search_content', 
-      {search_content: `%${search}%`})
+    .leftJoin('blog.blog_tags', 'blog_tag')
+    .leftJoin('blog_tag.tags', 'tag')
+    .addSelect(['tag.id as tag_id', 'tag.tag_name as tag_name'])
+    // .leftJoinAndSelect('blog.blog_tags', 'blog_tag')
+    // .leftJoinAndSelect('blog_tag.tags', 'tags')
 
+    const countQuery = this.repo.createQueryBuilder('blog')
+    if(search) {
+      queryBuilder.where('blog.title LIKE :search_content OR blog.content LIKE :search_content', 
+        {search_content: `%${search}%`})
+
+      countQuery.where('blog.title LIKE :search_content OR blog.content LIKE :search_content', 
+          {search_content: `%${search}%`})
+    }
+
+      
     if (type === BlogSortType.NEWEST) {
       queryBuilder.orderBy('blog.updated_at', 'DESC');
     } else if (type === BlogSortType.POPULAR) {
@@ -39,11 +53,12 @@ export class BlogRepository {
       queryBuilder.orderBy('blog.likes', 'DESC')   
                   .addOrderBy('blog.updated_at', 'DESC');
     }
-
+  
  // Pagination
     queryBuilder.skip(skip).take(per_page)
+    const items = await queryBuilder.getRawMany()
+    const total = await countQuery.getCount()
 
-    const [items, total] = await queryBuilder.getManyAndCount()
     return {items, total, page, per_page}
   }
 
