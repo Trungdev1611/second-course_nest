@@ -10,7 +10,7 @@ export class Blog_Tags_Entity extends BaseEntity {
     @JoinColumn({name: "post_id"})
     posts: BlogEntity
 
-    @ManyToOne(() => TagEntity, tag => tag.blog_tags)
+    @ManyToOne(() => TagEntity, tag => tag.blog_tags, {onDelete: 'CASCADE'})
     @JoinColumn({name: "tag_id"})
     tags: TagEntity
 }

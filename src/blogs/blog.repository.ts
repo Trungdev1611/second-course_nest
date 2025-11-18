@@ -27,39 +27,44 @@ export class BlogRepository {
   async findAndPaginate(query: queryBlogDTO) {
     const {page = 1, per_page = 20, search = '', type = "newest"} = query
     const skip = (page - 1) * per_page
-    const queryBuilder = this.repo.createQueryBuilder('blog')
-    .leftJoin('blog.blog_tags', 'blog_tag')
-    .leftJoin('blog_tag.tags', 'tag')
-    .addSelect(['tag.id as tag_id', 'tag.tag_name as tag_name'])
-    // .leftJoinAndSelect('blog.blog_tags', 'blog_tag')
-    // .leftJoinAndSelect('blog_tag.tags', 'tags')
+   // Step 1: get paged blog IDs
+const idsQuery = this.repo.createQueryBuilder('blog')
+.select('blog.id', 'id');
 
-    const countQuery = this.repo.createQueryBuilder('blog')
-    if(search) {
-      queryBuilder.where('blog.title LIKE :search_content OR blog.content LIKE :search_content', 
-        {search_content: `%${search}%`})
+if(search) {
+idsQuery.where('blog.title LIKE :s OR blog.content LIKE :s', { s: `%${search}%` });
+}
 
-      countQuery.where('blog.title LIKE :search_content OR blog.content LIKE :search_content', 
-          {search_content: `%${search}%`})
-    }
+if(type === BlogSortType.NEWEST) idsQuery.orderBy('blog.updated_at','DESC');
+else if(type === BlogSortType.POPULAR) idsQuery.orderBy('blog.views','DESC').addOrderBy('blog.updated_at','DESC');
+else if(type === BlogSortType.TRENDING) idsQuery.orderBy('blog.likes','DESC').addOrderBy('blog.updated_at','DESC');
 
-      
-    if (type === BlogSortType.NEWEST) {
-      queryBuilder.orderBy('blog.updated_at', 'DESC');
-    } else if (type === BlogSortType.POPULAR) {
-      queryBuilder.orderBy('blog.views', 'DESC')
-                  .addOrderBy('blog.updated_at', 'DESC');
-    } else if (type === BlogSortType.TRENDING) {
-      queryBuilder.orderBy('blog.likes', 'DESC')   
-                  .addOrderBy('blog.updated_at', 'DESC');
-    }
-  
- // Pagination
-    queryBuilder.skip(skip).take(per_page)
-    const items = await queryBuilder.getRawMany()
-    const total = await countQuery.getCount()
+idsQuery.skip(skip).take(per_page);
+const rawIds = await idsQuery.getRawMany();
+const ids = rawIds.map(r => r.id);
+if(!ids.length) return {items:[], total:0, page, per_page};
 
-    return {items, total, page, per_page}
+// Step 2: load blogs + tags aggregate
+const items = await this.repo.createQueryBuilder('blog', )
+.leftJoin('blog.blog_tags', 'blog_tag')
+.leftJoin('blog_tag.tags', 'tag')
+.whereInIds(ids)
+.select('blog')  // lấy toàn bộ cột của post
+     .addSelect(`COALESCE(
+         json_agg(json_build_object('id', tag.id, 'name', tag.tag_name))
+         FILTER (WHERE tag.id IS NOT NULL), '[]'
+       ) as tags`)
+.groupBy('blog.id')
+.orderBy(`array_position(ARRAY[${ids.join(',')}], blog.id)`) // preserve order
+.getRawMany();
+
+// Step 3: total
+const totalQuery = this.repo.createQueryBuilder('blog');
+if(search) totalQuery.where('blog.title LIKE :s OR blog.content LIKE :s', { s: `%${search}%` });
+const total = await totalQuery.getCount();
+
+return { items, total, page, per_page };
+
   }
 
   async createBlog(blogData: CreateBlogDTO): Promise<BlogEntity> {
@@ -71,9 +76,27 @@ export class BlogRepository {
   }
 
   async getPostById(idPost: number) {
-    return await this.repo.findOne({
-      where: {id: idPost}
-    })
+    return await    
+     this.repo.createQueryBuilder('post')
+     .leftJoin('post.blog_tags', 'blog_tag')
+     .leftJoin('blog_tag.tags', 'tag')
+     .select('post')  // lấy toàn bộ cột của post
+     .addSelect(`COALESCE(
+         json_agg(json_build_object('id', tag.id, 'name', tag.tag_name))
+         FILTER (WHERE tag.id IS NOT NULL), '[]'
+       ) as tags`)
+     .where('post.id = :id', { id: idPost })
+     .groupBy('post.id')
+     .getRawOne();
+    // this.repo.findOne({
+    //   where: {id: idPost},
+    //   relations: {
+    //     blog_tags: {
+    //       tags: true
+    //     }
+    //   }
+    // })
+
   }
 
   async likeOrUnlike(idPostOrCommentTarget: number, idUser: number, type:'post' | 'comment'): Promise<boolean> {

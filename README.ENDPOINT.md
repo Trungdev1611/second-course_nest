@@ -142,7 +142,7 @@
 
 | Method | Endpoint | Description | Request Body | Response |
 |--------|----------|-------------|--------------|----------|
-| POST | `/api/tags` | Tạo tag mới | `{ name }` | `{ tag }` |
+| POST | `/api/tags` | Tạo tag mới | `{ name }` | `{ tag }` |✅
 | PUT | `/api/tags/:id` | Cập nhật tag | `{ name }` | `{ tag }` |
 | DELETE | `/api/tags/:id` | Xóa tag (sẽ xóa relations) | - | `{ message: "Tag deleted" }` |
 | POST | `/api/tags/merge` | Merge tags (gộp tag) | `{ sourceId, targetId }` | `{ message: "Tags merged" }` |
