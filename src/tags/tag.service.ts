@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { TagRepository } from './tag.repository';
+import { plainToInstance } from 'class-transformer';
+import { TagEntity } from './tag.entity';
 
 
 @Injectable()
@@ -15,8 +17,8 @@ export class TagService {
 async  findAll(query: PaginateAndSearchDTO) {
     try {
         const {page, per_page} = query
-        const [data, count] =await  this.TagRepo.findAll(query.page, query.per_page)
-        return {data, metadata: {page, per_page, total: count}}
+        const [data, count] =await this.TagRepo.findAll(query.page, query.per_page)
+        return {data: plainToInstance(TagEntity, data), metadata: {page, per_page, total: count}}
     } catch (error) {
         throw new BadRequestException(error.message)
     }

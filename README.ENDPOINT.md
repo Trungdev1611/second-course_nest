@@ -133,8 +133,9 @@
 
 | Method | Endpoint | Description | Query Params | Response |
 |--------|----------|-------------|--------------|----------|
-| GET | `/api/tags` | Danh sách tất cả tags | `?sort=name\|popular` | `{ data: [tags] }` |
-| GET | `/api/tags/popular` | Top tags (most used) | `?limit=20` | `{ data: [{ tag, postCount }] }` |
+| GET | `/api/tags` | Danh sách tất cả tags | `?sort=name\|popular` | `{ data: [tags] }` |✅
+
+| GET | `/api/tags/popular` | Top tags (most used) | `?limit=20` | `{ data: [{ tag, postCount }] }` |✅
 | GET | `/api/tags/:slug` | Chi tiết tag | - | `{ tag, postCount }` |
 | GET | `/api/tags/:slug/posts` | Bài viết theo tag | `?page=1&limit=20` | `{ data: [posts], meta }` |
 
@@ -143,8 +144,9 @@
 | Method | Endpoint | Description | Request Body | Response |
 |--------|----------|-------------|--------------|----------|
 | POST | `/api/tags` | Tạo tag mới | `{ name }` | `{ tag }` |✅
-| PUT | `/api/tags/:id` | Cập nhật tag | `{ name }` | `{ tag }` |
-| DELETE | `/api/tags/:id` | Xóa tag (sẽ xóa relations) | - | `{ message: "Tag deleted" }` |
+| PUT | `/api/tags/:id` | Cập nhật tag | `{ name }` | `{ tag }` |✅
+| DELETE | `/api/tags/:id` | Xóa tag (sẽ xóa relations) | - | `{ message: "Tag deleted" }` |✅
+
 | POST | `/api/tags/merge` | Merge tags (gộp tag) | `{ sourceId, targetId }` | `{ message: "Tags merged" }` |
 
 ---

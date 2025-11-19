@@ -15,8 +15,17 @@ export class TagRepository {
 
   async findAll(page: number, per_page: number) {
     const offset = (page -1) * per_page
-    return await this.repository.createQueryBuilder('tag').skip(offset).take(per_page).getManyAndCount();
+    const queryItems =  this.repository.createQueryBuilder('tag')
+    .leftJoin('tag.blog_tags', 'blog_tags')
+    .select(['tag.id, tag.tag_name'])
+    .addSelect('COUNT(blog_tags.tag_id)', "count_tag")
+    .groupBy('tag.id')
+    .orderBy('tag.updated_at', "DESC")
+    .skip(offset).take(per_page)
+    .getRawMany();
 
+    const queryTotal = this.repository.createQueryBuilder('tag').getCount()
+    return await Promise.all([queryItems, queryTotal])
   }
 
   async removeTagByID(idTag: number) {

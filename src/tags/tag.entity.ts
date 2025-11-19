@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Blog_Tags_Entity } from "src/blog_tags/blog_tags.entity";
 import { BaseEntity } from "src/common/base.entity";
 import { Column, DeleteDateColumn, Entity, OneToMany } from "typeorm";
@@ -14,5 +15,6 @@ export class TagEntity extends BaseEntity {
     blog_tags: Blog_Tags_Entity[]
 
     @DeleteDateColumn()
+    @Exclude()
     removedAt: Date | null;
 }
