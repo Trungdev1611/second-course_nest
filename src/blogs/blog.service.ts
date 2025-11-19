@@ -6,15 +6,69 @@ import { BlogSortType } from './type';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { DataSource } from 'typeorm';
 import { CommentEntity } from 'src/comments/comment.entity';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { BlogEntity } from './blog.entity';
 
 
 @Injectable()
 export class BlogService {
   constructor(private readonly blogRepo: BlogRepository, 
     private readonly redisService: RedisService,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private readonly elasticSearch: ElasticsearchService
   ) {
 
+  }
+
+  async reIndexAllBlog(batchSize = 500) {//reindex 500 item once time
+    try {
+      const blogRepo =  this.dataSource.getRepository(BlogEntity);
+      let skip = 0
+      let totalIndex = 0 
+      
+      while(true) {
+        const blogs = await blogRepo.find({
+          skip: skip,
+          take: batchSize,
+          relations: {
+            blog_tags: {
+              tags: true
+            }
+          }
+        })
+
+        if(blogs.length === 0) break;
+
+        //build tags vào trong blog để lúc search blog theo tag được
+        const operations = blogs.flatMap(blog => {
+          const tags = blog.blog_tags.map(bt => ({
+            id: bt.tags.id,
+            name: bt.tags.tag_name,
+          }))
+
+          return [
+            {index: {_index: 'blogs', _id: blog.id.toString()}},
+            {
+              id: blog.id,
+              title: blog.title,
+              content: blog.content,
+              stauts: blog.status,
+              tags: tags
+            }
+          ]
+        })
+            // Bulk index vào ES
+            await this.elasticSearch.bulk({ refresh: true, operations });
+            totalIndex += blogs.length;
+            skip += batchSize;
+            console.log(`Indexed ${totalIndex} blogs so far...`);
+            }
+
+            console.log(`Reindex done! Total blogs indexed: ${totalIndex}`);
+            return "done"
+          } catch (error) {
+            throw new BadRequestException(error.message)
+          }
   }
   async create(createDto: CreateBlogDTO) {
     try {

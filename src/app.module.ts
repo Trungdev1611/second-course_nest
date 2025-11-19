@@ -13,6 +13,7 @@ import { CouldinaryModule } from './cloudinary/cloudinari.module';
 import { CommentModule } from './comments/comment.module';
 import { BlogTagsModule } from './blog_tags/blog_tags.module';
 import { TagModule } from './tags/tag.module';
+import { ElasticsearchModule } from './elasticsearch/essearch.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -31,7 +32,8 @@ import { TagModule } from './tags/tag.module';
     CouldinaryModule,
     CommentModule,
     BlogTagsModule,
-    TagModule
+    TagModule,
+    ElasticsearchModule
   ],
   controllers: [AppController],
   providers: [AppService],

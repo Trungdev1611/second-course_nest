@@ -68,7 +68,13 @@ return { items, total, page, per_page };
   }
 
   async createBlog(blogData: CreateBlogDTO): Promise<BlogEntity> {
-    return this.repo.save(blogData)
+    const blogSaved = await this.repo.save(blogData)
+    const values = blogData.tags.map(tag_id => `(${blogSaved.id}, ${tag_id})`).join(',');
+    await this.dataSource.query(`
+      INSERT INTO blog_tags (post_id, tag_id)
+      VALUES ${values}
+    `)
+    return blogSaved
   }
 
   async incrementView(idPost: number, count: number) {

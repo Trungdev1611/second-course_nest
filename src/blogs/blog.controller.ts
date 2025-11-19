@@ -24,6 +24,26 @@ import { BlogEntity } from './blog.entity';
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
+
+  //API để fill dữ liệu trước khi cài dặt ESsearch vào essearch
+  @Post('index-blogs')
+  @ApiOperation({
+    summary: "Re-index ES search with old data",
+    description: "các dữ liệu trước khi cài đặt ES search cần được fill vào ES search"
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'fill dữ liệu thành công',
+    schema: {
+      example: {
+        message: 'success',
+      },
+    },
+  })
+  indexAllBlog() {
+    return this.blogService.reIndexAllBlog();
+  }
+
   @Post('create')
     @ApiOperation({
       summary: "API tạo mới một blog",

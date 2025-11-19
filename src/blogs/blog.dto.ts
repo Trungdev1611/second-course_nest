@@ -71,14 +71,14 @@ export class CreateBlogDTO {
   reading_time?: number;
 
   @ApiPropertyOptional({
-    description: 'Danh sách tag cho bài viết',
-    example: ['nestjs', 'typescript', 'backend'],
-    type: [String],
+    description: 'Danh sách tag cho bài viết, id tags',
+    example: [1, 2, 3],
+    type: [Number],
   })
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  tags?: string[];
+  @IsNumber({}, { each: true })
+  tags?: number[];
 }
 
 
