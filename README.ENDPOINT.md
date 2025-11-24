@@ -386,3 +386,11 @@ X-Refresh-Token: <refresh_token>
 **WebSocket Namespaces: 2**
 - `/posts/:postId`
 - `/notifications`
+
+
+Sẵn sàng cho backend
+Giao diện đã sẵn sàng. Khi backend implement các API endpoints:
+GET /search - Full-text search
+GET /search/suggest - Autocomplete
+GET /search/advanced - Advanced search
+GET /search/related/:id - Related posts

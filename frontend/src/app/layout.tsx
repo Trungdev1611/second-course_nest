@@ -5,6 +5,10 @@ import './globals.css';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { AntdProvider } from '@/providers/AntdProvider';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { AppShell } from '@/components/layout/AppShell';
+import ErrorBoundary from '@/components/wrapper/ErrorBoundary';
+import { GlobalLoading } from '@/components/wrapper/GlobalLoading';
+import { MockDataIndicator } from '@/components/common/MockDataIndicator';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
 
@@ -22,11 +26,15 @@ export default function RootLayout({
     <html lang="vi">
       <body className={inter.className}>
         <AntdRegistry>
-          <QueryProvider>
-            <AntdProvider>
-              {children}
-            </AntdProvider>
-          </QueryProvider>
+          <ErrorBoundary>
+            <QueryProvider>
+              <GlobalLoading />
+              <AntdProvider>
+                <AppShell>{children}</AppShell>
+                <MockDataIndicator />
+              </AntdProvider>
+            </QueryProvider>
+          </ErrorBoundary>
         </AntdRegistry>
       </body>
     </html>

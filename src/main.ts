@@ -43,7 +43,7 @@ async function bootstrap() {
   }); // URL: http://localhost:3000/api/docs
 
 
-
+  app.enableCors();
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

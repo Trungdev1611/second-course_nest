@@ -30,8 +30,12 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== 'undefined') {
           if (token) {
             localStorage.setItem('access_token', token);
+            // Sync token vào cookies để middleware có thể đọc được
+            document.cookie = `access_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
           } else {
             localStorage.removeItem('access_token');
+            // Xóa cookie
+            document.cookie = 'access_token=; path=/; max-age=0';
           }
         }
       },
@@ -40,6 +44,9 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== 'undefined') {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
+          // Xóa cookies
+          document.cookie = 'access_token=; path=/; max-age=0';
+          document.cookie = 'refresh_token=; path=/; max-age=0';
         }
       },
     }),

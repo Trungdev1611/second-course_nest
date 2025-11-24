@@ -20,8 +20,73 @@ export class BlogService {
 
   }
 
+  /**
+   * Tạo index với mapping đúng cho completion suggester
+   */
+  async setupElasticsearchIndex() {
+    try {
+      const indexExists = await this.elasticSearch.indices.exists({
+        index: 'blogs'
+      });
+
+      if (indexExists) {
+        console.log('Index "blogs" đã tồn tại, đang xóa để tạo lại với mapping đúng...');
+        await this.elasticSearch.indices.delete({ index: 'blogs' });
+      }
+
+      // Tạo index với mapping đúng
+      await this.elasticSearch.indices.create({
+        index: 'blogs',
+        body: {
+          mappings: {
+            properties: {
+              id: { type: 'integer' },
+              title: { 
+                type: 'text',
+                analyzer: 'standard',
+                fields: {
+                  keyword: { type: 'keyword' }
+                }
+              },
+              content: { 
+                type: 'text',
+                analyzer: 'standard'
+              },
+              excerpt: { 
+                type: 'text',
+                analyzer: 'standard'
+              },
+              status: { type: 'keyword' },
+              tags: {
+                type: 'nested',
+                properties: {
+                  id: { type: 'integer' },
+                  name: { type: 'keyword' }
+                }
+              },
+              // Field suggest cho completion suggester - QUAN TRỌNG!
+              suggest: {
+                type: 'completion',
+                analyzer: 'standard'
+              }
+            }
+          }
+        }
+      });
+
+      console.log('✅ Đã tạo index "blogs" với mapping đúng (bao gồm field suggest type completion)!');
+      return { message: 'Index created successfully with correct mapping' };
+    } catch (error) {
+      console.error('Error creating index:', error);
+      throw new BadRequestException(`Failed to create index: ${error.message}`);
+    }
+  }
+
   async reIndexAllBlog(batchSize = 500) {//reindex 500 item once time
     try {
+      // Đảm bảo index đã được tạo với mapping đúng trước khi reindex
+      await this.setupElasticsearchIndex();
+      
       const blogRepo =  this.dataSource.getRepository(BlogEntity);
       let skip = 0
       let totalIndex = 0 
@@ -46,14 +111,42 @@ export class BlogService {
             name: bt.tags.tag_name,
           }))
 
+          // Tạo suggest inputs - chỉ dùng title, excerpt và tag names (không dùng content vì quá dài)
+          const suggestInputs: string[] = [];
+          
+          // Thêm title (quan trọng nhất)
+          if (blog.title) {
+            suggestInputs.push(blog.title);
+            // Thêm các từ trong title riêng lẻ để dễ search hơn
+            const titleWords = blog.title.split(/\s+/).filter(word => word.length > 2);
+            suggestInputs.push(...titleWords);
+          }
+          
+          // Thêm excerpt nếu có
+          if (blog.excerpt) {
+            suggestInputs.push(blog.excerpt);
+          }
+          
+          // Thêm tag names
+          tags.forEach(tag => {
+            if (tag.name) {
+              suggestInputs.push(tag.name);
+            }
+          });
+
           return [
             {index: {_index: 'blogs', _id: blog.id.toString()}},
             {
               id: blog.id,
               title: blog.title,
               content: blog.content,
-              stauts: blog.status,
-              tags: tags
+              excerpt: blog.excerpt,
+              status: blog.status,
+              thumbnail: blog.thumbnail,
+              tags: tags,
+              suggest: { //cái này để làm autocomplete
+                input: suggestInputs.filter((item, index, self) => self.indexOf(item) === index) // remove duplicates
+              }
             }
           ]
         })
@@ -132,9 +225,9 @@ export class BlogService {
 
   }
 
-  async getPostById(id: number) {
+  async getPostById(id: number, idUser: number) {
    try {
-     return await this.blogRepo.getPostById(id)
+     return await this.blogRepo.getPostById(id, idUser)
    } catch (error) {
     throw new BadRequestException(error.message)
    }

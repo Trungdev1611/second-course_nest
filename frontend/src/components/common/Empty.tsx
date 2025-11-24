@@ -2,7 +2,7 @@ import { Empty as AntEmpty, EmptyProps as AntEmptyProps } from 'antd';
 import { ReactNode } from 'react';
 
 interface EmptyProps extends AntEmptyProps {
-  description?: string;
+  description?: string | ReactNode;
   image?: ReactNode;
 }
 

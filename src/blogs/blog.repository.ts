@@ -48,16 +48,21 @@ if(!ids.length) return {items:[], total:0, page, per_page};
 const items = await this.repo.createQueryBuilder('blog', )
 .leftJoin('blog.blog_tags', 'blog_tag')
 .leftJoin('blog_tag.tags', 'tag')
+.leftJoin('blog.user', 'user')
 .whereInIds(ids)
 .select('blog')  // lấy toàn bộ cột của post
      .addSelect(`COALESCE(
          json_agg(json_build_object('id', tag.id, 'name', tag.tag_name))
          FILTER (WHERE tag.id IS NOT NULL), '[]'
        ) as tags`)
+        .addSelect(['user.name as user_name', 'user.email as user_email'])
 .groupBy('blog.id')
+.addGroupBy('user.name')
+.addGroupBy('user.email')
 .orderBy(`array_position(ARRAY[${ids.join(',')}], blog.id)`) // preserve order
 .getRawMany();
 
+console.log("itemss::::", items)
 // Step 3: total
 const totalQuery = this.repo.createQueryBuilder('blog');
 if(search) totalQuery.where('blog.title LIKE :s OR blog.content LIKE :s', { s: `%${search}%` });
@@ -81,19 +86,29 @@ return { items, total, page, per_page };
     await this.repo.increment({ id: idPost }, 'views', count);
   }
 
-  async getPostById(idPost: number) {
-    return await    
-     this.repo.createQueryBuilder('post')
-     .leftJoin('post.blog_tags', 'blog_tag')
-     .leftJoin('blog_tag.tags', 'tag')
-     .select('post')  // lấy toàn bộ cột của post
-     .addSelect(`COALESCE(
-         json_agg(json_build_object('id', tag.id, 'name', tag.tag_name))
-         FILTER (WHERE tag.id IS NOT NULL), '[]'
-       ) as tags`)
-     .where('post.id = :id', { id: idPost })
-     .groupBy('post.id')
-     .getRawOne();
+  async getPostById(idPost: number, idUser: number) {
+    // const status = idUser ? "public" : ""
+    const queryBuilder =  this.repo.createQueryBuilder('post')
+    .leftJoin('post.blog_tags', 'blog_tag')
+    .leftJoin('blog_tag.tags', 'tag')
+    .leftJoin('post.user', 'user')
+    .select([
+      'post',       // toàn bộ post
+      'user.name',
+      'user.email'  // lấy username
+    ])  // lấy toàn bộ cột của post
+    .addSelect(`COALESCE(
+        json_agg(json_build_object('id', tag.id, 'name', tag.tag_name))
+        FILTER (WHERE tag.id IS NOT NULL), '[]'
+      ) as tags`)
+    .where('post.id = :id', { id: idPost })
+    // if(status) {
+    //   queryBuilder.andWhere('post.status', {status})
+    // }
+
+    queryBuilder.groupBy('post.id').addGroupBy('user.name').addGroupBy('user.email');;
+    return await    queryBuilder.getRawOne();
+
     // this.repo.findOne({
     //   where: {id: idPost},
     //   relations: {
@@ -183,6 +198,7 @@ async getListComments(postId: number,query: PaginateandSortCommentDTO ) {
     .where("comment.post_id=:idPost", {idPost})
     .andWhere("comment.parent_id=:idComment", {idComment})
     .select(["comment.id", "comment.content", "comment.post_id", "user.id", "user.name", "user.image"])
+    .addSelect("comment.created_at", "createdAt")
     .getRawMany()
     // .find({
     //   where: {
@@ -197,27 +213,17 @@ async getListComments(postId: number,query: PaginateandSortCommentDTO ) {
   }
 
   async getPostRelated(idTargetPost: number) {
-    const query = `
-      SELECT p.id, p.title, 
-             CARDINALITY(
-               ARRAY(
-                 SELECT UNNEST(string_to_array(p.tags, ',')) 
-                 INTERSECT 
-                 SELECT UNNEST(string_to_array((SELECT tags FROM blogs WHERE id = $1), ','))
-               )
-             ) AS "commonTagsCount"
-      FROM blogs p
-      WHERE p.id != $1
-        AND ARRAY_LENGTH(
-              ARRAY(
-                SELECT UNNEST(string_to_array(p.tags, ',')) 
-                INTERSECT 
-                SELECT UNNEST(string_to_array((SELECT tags FROM blogs WHERE id = $1), ','))
-              ), 1
-            ) > 0
-      ORDER BY "commonTagsCount" DESC
-      LIMIT 5;
-    `;
+
+    const query = `SELECT p.id, p.title, p.created_at
+    ,COUNT(pt.tag_id) AS commonTagsCount
+    FROM blogs p
+    LEFT JOIN blog_tags pt 
+      ON p.id = pt.post_id 
+      AND pt.tag_id IN (SELECT tag_id FROM blog_tags WHERE post_id = $1)
+    WHERE p.id != $1
+    GROUP BY p.id
+    ORDER BY commonTagsCount DESC
+    LIMIT 5;`
   
     const data = await this.dataSource.query(query, [idTargetPost]);
     if (!data || data.length === 0) {

@@ -26,6 +26,13 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+/* Dark mode support for body */
+.dark body {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 17, 24, 39; /* gray-900 */
+  --background-end-rgb: 17, 24, 39;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -73,5 +80,21 @@ body {
   border-radius: 12px;
   padding: 16px;
   overflow-x: auto;
+}
+
+/* Highlight text from Elasticsearch - Màu vàng nổi bật */
+mark {
+  background-color: #fde047; /* yellow-400 - màu vàng nổi bật hơn */
+  color: #1e293b; /* slate-800 */
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dark mark {
+  background-color: #facc15; /* yellow-500 - vàng sáng hơn cho dark mode */
+  color: #0f172a; /* slate-900 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 

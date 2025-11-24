@@ -18,6 +18,7 @@ import { IdParamDto, PostCommentParamDto } from 'src/common/dto/common.dto';
 import { JwtAuthGuard } from 'src/guard/jwtAuthGuard';
 import { CommentCreateDTO } from 'src/comments/comment.dto';
 import { BlogEntity } from './blog.entity';
+import { OptionalJwtGuard } from 'src/guard/OptionalJwtAuth';
 
 @ApiTags('Blogs')
 @Controller('blog')
@@ -25,11 +26,25 @@ export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
 
+  //API để setup index với mapping đúng
+  @Post('setup-elasticsearch-index')
+  @ApiOperation({
+    summary: "Tạo index 'blogs' với mapping đúng cho completion suggester",
+    description: "Cần chạy endpoint này trước khi reindex. Tạo index với field 'suggest' type 'completion'"
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Index đã được tạo thành công',
+  })
+  setupIndex() {
+    return this.blogService.setupElasticsearchIndex();
+  }
+
   //API để fill dữ liệu trước khi cài dặt ESsearch vào essearch
   @Post('index-blogs')
   @ApiOperation({
     summary: "Re-index ES search with old data",
-    description: "các dữ liệu trước khi cài đặt ES search cần được fill vào ES search"
+    description: "các dữ liệu trước khi cài đặt ES search cần được fill vào ES search. Tự động setup index với mapping đúng trước khi reindex."
   })
   @ApiResponse({
     status: 201,
@@ -108,7 +123,7 @@ export class BlogController {
   }
 
   @Get('post/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtGuard)
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
@@ -121,8 +136,11 @@ export class BlogController {
     // },
   })
   async getPostDetail(@Param() param: IdParamDto, @Req() req) {
-    await this.blogService.increView(param.id, req.user.id)
-    return this.blogService.getPostById(param.id);
+    const idUser = req?.user?.id
+    if(idUser) {
+      await this.blogService.increView(param.id, req?.user?.id)
+    }
+    return this.blogService.getPostById(param.id, idUser);
   }
 
   @Post('post/:id/like_unlike')
@@ -145,7 +163,7 @@ export class BlogController {
   }
 
   @Post('post/:id/comments')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtGuard)
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
@@ -203,7 +221,7 @@ export class BlogController {
   }
 
   @ApiOperation({
-    summary: "Get 5 items (trùng tag với tags của post hiện tại) id and title of these posts which related to this post",
+    summary: "Get replis (trùng tag với tags của post hiện tại) id and title of these posts which related to this post",
    
   })
   @ApiResponse({

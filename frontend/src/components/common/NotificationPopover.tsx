@@ -32,7 +32,7 @@ export function AntdNotificationPopover({
   const unreadCount = notifications.filter((n) => n.unread).length;
 
   const content = (
-    <div className="w-80 max-w-full">
+    <div className="w-80 max-w-full max-h-96 flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <p className="font-medium text-gray-900">Thông báo</p>
         <Button
@@ -45,7 +45,9 @@ export function AntdNotificationPopover({
           Đánh dấu đã đọc
         </Button>
       </div>
+      <div className="overflow-auto max-h-80">
       <List
+        className="flex-1 overflow-auto"
         dataSource={notifications}
         locale={{ emptyText }}
         renderItem={(item) => (
@@ -76,11 +78,17 @@ export function AntdNotificationPopover({
           </List.Item>
         )}
       />
+      </div>
+
     </div>
   );
 
   return (
-    <Popover placement="bottomRight" content={content} trigger="click">
+    <Popover placement="bottomRight" content={content} trigger="click"
+    getPopupContainer={() => document.body} 
+    autoAdjustOverflow={true} 
+    align={{ offset: [0, 8] }}
+    >
       <Badge count={unreadCount} size="small">
         <Button
           shape="circle"

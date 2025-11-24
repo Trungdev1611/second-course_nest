@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'ax
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -18,6 +18,16 @@ apiClient.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Add timestamp to bypass browser cache for GET requests
+    // // Timestamp đã đủ để bypass cache, không cần set headers phức tạp
+    // if (config.method === 'get') {
+    //   if (config.params) {
+    //     config.params._t = Date.now();
+    //   } else {
+    //     config.params = { _t: Date.now() };
+    //   }
+    // }
     
     return config;
   },
@@ -43,7 +53,7 @@ apiClient.interceptors.response.use(
         if (typeof window !== 'undefined') {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
-          // window.location.href = '/auth/login';
+          // window.location.href = '/login';
         }
       }
       

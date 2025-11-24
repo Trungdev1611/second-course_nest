@@ -1,12 +1,22 @@
 'use client';
 
 import { ConfigProvider, theme } from 'antd';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useUIStore } from '@/store/uiStore';
 import viVN from 'antd/locale/vi_VN';
 
 export function AntdProvider({ children }: { children: ReactNode }) {
   const { theme: appTheme } = useUIStore();
+
+  // Đồng bộ Tailwind dark mode với Ant Design theme
+  useEffect(() => {
+    const html = document.documentElement;
+    if (appTheme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }, [appTheme]);
 
   return (
     <ConfigProvider

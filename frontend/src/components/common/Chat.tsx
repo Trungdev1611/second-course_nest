@@ -1,3 +1,4 @@
+'use client'
 import { Avatar, Badge, Button, Input, List, Space } from 'antd';
 import { SendOutlined, PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
@@ -19,6 +20,7 @@ interface AntdChatProps {
   participants?: { id: string; name: string; online?: boolean; avatar?: string }[];
   messages: ChatMessage[];
   onSend?: (message: string) => void;
+  onNewChat?: () => void;
   placeholder?: string;
 }
 
@@ -27,6 +29,7 @@ export function AntdChat({
   participants = [],
   messages,
   onSend,
+  onNewChat,
   placeholder = 'Type your message...',
 }: AntdChatProps) {
   const [draft, setDraft] = useState('');
@@ -44,7 +47,12 @@ export function AntdChat({
           <p className="font-semibold text-gray-900">{title}</p>
           <p className="text-sm text-gray-500">{participants.length} members</p>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} ghost>
+        <Button 
+          type="primary" 
+          icon={<PlusOutlined />} 
+          ghost
+          onClick={onNewChat}
+        >
           New Chat
         </Button>
       </div>

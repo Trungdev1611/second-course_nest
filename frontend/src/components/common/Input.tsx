@@ -1,4 +1,4 @@
-import { Input as AntInput } from 'antd';
+import { Input } from 'antd';
 import type { InputProps as AntInputProps, TextAreaProps as AntTextAreaProps } from 'antd/es/input';
 
 interface BaseFieldProps {
@@ -18,7 +18,7 @@ export function AntdInput({ label, error, helperText, ...props }: InputProps) {
           {props.required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      <AntInput
+      <Input
         {...props}
         status={error ? 'error' : undefined}
         className="w-full"
@@ -35,7 +35,7 @@ export function AntdInput({ label, error, helperText, ...props }: InputProps) {
 
 interface TextAreaProps extends AntTextAreaProps, BaseFieldProps {}
 
-const { TextArea: AntTextArea } = AntInput;
+const { TextArea: AntTextArea } = Input;
 
 export function AntdTextArea({ label, error, helperText, ...props }: TextAreaProps) {
   
@@ -62,3 +62,23 @@ export function AntdTextArea({ label, error, helperText, ...props }: TextAreaPro
   );
 }
 
+
+export function AntdPasswordInput({ label, error, helperText, ...props }: InputProps) {
+  return (
+    <div className="w-full">
+      {label && (
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+          {label}
+          {props.required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
+      <Input.Password
+        {...props}
+        status={error ? 'error' : undefined}
+        className="w-full"
+      />
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {!error && helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
+    </div>
+  );
+}

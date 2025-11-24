@@ -1,5 +1,5 @@
 export { AntdButton } from './Button';
-export { AntdInput, AntdTextArea } from './Input';
+export { AntdInput, AntdTextArea, AntdPasswordInput } from './Input';
 export { AntdCard } from './Card';
 export { AntdModal } from './Modal';
 export { AntdBadge } from './Badge';
@@ -18,5 +18,9 @@ export { AntdTable } from './Table';
 export { useAntdNotification } from './Notification';
 export { AntdNotificationPopover } from './NotificationPopover';
 export { AntdChat } from './Chat';
+export { AntdCommentList } from './Comment';
+export { MockDataIndicator } from './MockDataIndicator';
+export { LazyLoad } from './LazyLoad';
+export { HighlightText } from './HighlightText';
 export type { RadioProps, RadioGroupPropsExtended } from './Radio';
 
