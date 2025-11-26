@@ -8,6 +8,9 @@ export interface ApiResponse<T = any> {
     page?: number;
     per_page?: number;
     total?: number;
+    conversationId?: number;
+    conversationKey?: string;
+    pageSize?: number;
   };
   message?: string;
 }
@@ -95,6 +98,12 @@ export const userApi = {
   },
 };
 
+// Friendship API
+export const friendshipApi = {
+  getFriends: (userId: number) =>
+    apiClient.get<ApiResponse>(`/friendship/${userId}/listfriend`),
+};
+
 // Comment API
 export const commentApi = {
   createComment: (postId: number, data: { content: string }) =>
@@ -114,6 +123,38 @@ export const commentApi = {
 export const tagApi = {
   getTags: (params?: { page?: number; per_page?: number; search?: string }) =>
     apiClient.get<ApiResponse>('/tag/getlist', { params }),
+};
+
+// Chat API
+export const chatApi = {
+  getMessages: (params: { conversationId?: number; conversationKey?: string; page?: number }) => {
+    const { conversationId, conversationKey, page } = params;
+
+    const identifier =
+      typeof conversationId === 'number' ? conversationId : conversationKey;
+
+    if (!identifier) {
+      throw new Error('conversationId hoặc conversationKey là bắt buộc');
+    }
+
+    const queryParams: Record<string, any> = {};
+    if (typeof conversationId === 'number') {
+      queryParams.conversationId = conversationId;
+    }
+    if (conversationKey) {
+      queryParams.conversationKey = conversationKey;
+    }
+    if (page) {
+      queryParams.page = page;
+    }
+
+    return apiClient.get<ApiResponse>(
+      `/chat/conversation/${identifier}/messages`,
+      {
+        params: queryParams,
+      },
+    );
+  },
 };
 
 // Upload API

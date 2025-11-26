@@ -5,6 +5,7 @@ import { RoleEntity } from "src/role/role.entity";
 import { BlogEntity } from "src/blogs/blog.entity";
 import { LikeEntity } from "src/likes/Like.entity";
 import { CommentEntity } from "src/comments/comment.entity";
+// import { Friendship } from "src/friend_ship/friend_ship.entity";
 @Entity()
 export class User extends BaseEntity {
   @Column({unique: true})
@@ -54,7 +55,29 @@ export class User extends BaseEntity {
 
   @OneToMany(() => CommentEntity, comment => comment.user)
   comments: CommentEntity[]
-  
+
+  // @OneToMany(() => Friendship, sentFriendRequests => sentFriendRequests.requester)
+  // sentFriendRequests: Friendship[]
+
+  // @OneToMany(() => Friendship, receivedFriendRequests => receivedFriendRequests.receiver)
+  // receivedFriendRequests: Friendship[]
+
+  @ManyToMany(() => User, user => user.friends)
+  @JoinTable({
+    name: "friendship",
+    joinColumn: {
+      name: "user_target_id", //user
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'friend_id', //bạn của user
+      referencedColumnName: 'id'
+    }
+
+  })
+  friends: User[]
+
+
   constructor(partial: Partial<User>) {
     super();
     Object.assign(this, partial);

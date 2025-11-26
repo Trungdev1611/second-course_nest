@@ -16,6 +16,7 @@ const navLinks = [
   { href: '/editor', label: 'Viết bài' },
   { href: '/me', label: 'Dashboard' },
   { href: '/search', label: 'Advance Search' },
+  { href: '/chat', label: 'Chat' },
 ];
 
 const drawerLinks = [
@@ -25,6 +26,7 @@ const drawerLinks = [
   { key: 'notifications', label: <Link href="/notifications">Thông báo</Link> },
   { key: 'admin', label: <Link href="/admin">Admin</Link> },
   { key: 'search', label: <Link href="/search">Advance Search</Link> },
+  { key: 'chat', label: <Link href="/search">Chat</Link> },
 ];
 
 export function AppHeader() {

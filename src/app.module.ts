@@ -15,6 +15,7 @@ import { BlogTagsModule } from './blog_tags/blog_tags.module';
 import { TagModule } from './tags/tag.module';
 import { ElasticsearchModule } from './elasticsearch/essearch.module';
 import { ChatModule } from './chat/chat.module';
+import { FriendshipModule } from './friend_ship/friend_ship.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -35,7 +36,8 @@ import { ChatModule } from './chat/chat.module';
     BlogTagsModule,
     TagModule,
     ElasticsearchModule,
-    ChatModule
+    ChatModule,
+    FriendshipModule
   ],
   controllers: [AppController],
   providers: [AppService],

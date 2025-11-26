@@ -28,14 +28,32 @@ export class SendMessageDTO {
 }
 
 export class GetMessagesDTO {
-  @ApiProperty({
-    description: 'ID của conversation',
+  @ApiPropertyOptional({
+    description: 'ID của conversation (có thể truyền qua query hoặc param)',
     example: 1,
   })
   @Type(() => Number)
+  @IsOptional()
   @IsNumber()
-  conversationId: number;
+  conversationId?: number;
 
+  @ApiPropertyOptional({
+    description: 'Conversation key (ví dụ: conv_1_2)',
+    example: 'conv_1_2',
+  })
+  @IsOptional()
+  @IsString()
+  conversationKey?: string;
+
+  @ApiPropertyOptional({
+    description: 'Số trang',
+    example: 1,
+  })
+  @IsOptional()
+  page?: number;
+}
+
+export class GetConversationsDTO {
   @ApiPropertyOptional({
     description: 'Số trang',
     example: 1,
@@ -44,7 +62,7 @@ export class GetMessagesDTO {
   page?: number;
 
   @ApiPropertyOptional({
-    description: 'Số lượng tin nhắn mỗi trang',
+    description: 'Số lượng conversation mỗi trang',
     example: 20,
   })
   @IsOptional()
