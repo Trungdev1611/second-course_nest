@@ -3,6 +3,8 @@ import { EntitySubscriberInterface, EventSubscriber } from "typeorm";
 @EventSubscriber()
 export class QueryLoggerSubscriber implements EntitySubscriberInterface {
   private queryTimes = new Map<string, number>();
+  private static scopeTimers = new Map<string, number>();
+  private static scopeAggregations = new Map<string, number>();
 
   private colors = {
     reset: '\x1b[0m',
@@ -73,9 +75,49 @@ export class QueryLoggerSubscriber implements EntitySubscriberInterface {
           value = String(param);
         }
         
-        result = result.replace(placeholder, value);
+        const regex = new RegExp(`\\${placeholder}`, 'g');
+        result = result.replace(regex, value);
       });
     }
     return result;
+  }
+  
+  /**
+   * Shared helpers giúp đo thời gian tổng quát cho bất kỳ hàm/service nào
+   * ví dụ:
+   * QueryLoggerSubscriber.startScope('BlogRepository.findAndPaginate');
+   * ... logic
+   * QueryLoggerSubscriber.endScope('BlogRepository.findAndPaginate');
+   */
+  static startScope(label: string) {
+    QueryLoggerSubscriber.scopeTimers.set(label, performance.now ? performance.now() : Date.now());
+  }
+
+  static endScope(label: string) {
+    const start = QueryLoggerSubscriber.scopeTimers.get(label);
+    if (!start) return;
+
+    QueryLoggerSubscriber.scopeTimers.delete(label);
+    const end = performance.now ? performance.now() : Date.now();
+    const duration = end - start;
+    const prevTotal = QueryLoggerSubscriber.scopeAggregations.get(label) || 0;
+    const newTotal = prevTotal + duration;
+    QueryLoggerSubscriber.scopeAggregations.set(label, newTotal);
+
+    const formatter = duration > 200 ? '\x1b[31m' : duration > 50 ? '\x1b[33m' : '\x1b[32m';
+    const resetColor = '\x1b[0m';
+    console.log(
+      `⏱️ ${formatter}${label}${resetColor} took ${duration.toFixed(2)}ms (total ${newTotal.toFixed(2)}ms)`
+    );
+  }
+
+  static resetScope(label?: string) {
+    if (label) {
+      QueryLoggerSubscriber.scopeAggregations.delete(label);
+      QueryLoggerSubscriber.scopeTimers.delete(label);
+      return;
+    }
+    QueryLoggerSubscriber.scopeAggregations.clear();
+    QueryLoggerSubscriber.scopeTimers.clear();
   }
 }
