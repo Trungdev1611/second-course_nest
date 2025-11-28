@@ -2,8 +2,11 @@ import { Blog_Tags_Entity } from 'src/blog_tags/blog_tags.entity';
 import { CommentEntity } from 'src/comments/comment.entity';
 import { BaseEntity } from 'src/common/base.entity';
 import { User } from 'src/users/user.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
+@Index('idx_blog_updated_at_desc', ['updated_at'])
+@Index('idx_blog_views_updated_at', ['views', 'updated_at'])
+@Index('idx_blog_likes_updated_at', ['likes', 'updated_at'])
 @Entity('blogs')
 export class BlogEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })

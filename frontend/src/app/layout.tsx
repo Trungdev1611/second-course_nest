@@ -9,6 +9,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import ErrorBoundary from '@/components/wrapper/ErrorBoundary';
 import { GlobalLoading } from '@/components/wrapper/GlobalLoading';
 import { MockDataIndicator } from '@/components/common/MockDataIndicator';
+import { SocketProvider } from '@/components/providers/SocketProvider';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'] });
 
@@ -30,8 +31,10 @@ export default function RootLayout({
             <QueryProvider>
               <GlobalLoading />
               <AntdProvider>
-                <AppShell>{children}</AppShell>
-                <MockDataIndicator />
+                <SocketProvider>
+                  <AppShell>{children}</AppShell>
+                  <MockDataIndicator />
+                </SocketProvider>
               </AntdProvider>
             </QueryProvider>
           </ErrorBoundary>

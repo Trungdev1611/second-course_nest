@@ -112,4 +112,12 @@ export class UserService {
       throw new BadRequestException(error.message);
     }
   }
+
+  async getUsersNotFriends(currentUserId: number, query: PaginateAndSearchDTO) {
+    try {
+      return await this.userRepo.getUsersNotFriends(currentUserId, query);
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Unexpected error');
+    }
+  }
 }

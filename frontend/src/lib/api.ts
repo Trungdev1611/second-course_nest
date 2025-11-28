@@ -157,6 +157,26 @@ export const chatApi = {
   },
 };
 
+// Notification API
+export const notificationApi = {
+  getNotifications: () => apiClient.get<ApiResponse>('/notifications'),
+  
+  markAsRead: (id: number) =>
+    apiClient.put<ApiResponse>(`/notifications/${id}/read`),
+  
+  markAllAsRead: () =>
+    apiClient.put<ApiResponse>('/notifications/read-all'),
+
+  respondFriendRequest: (notificationId: number, action: 'accept' | 'reject') =>
+    apiClient.put<ApiResponse>(`/notifications/${notificationId}/${action}`),
+};
+
+// Friend suggestion API
+export const friendSuggestionApi = {
+  getSuggestFriends: (params?: { page?: number; per_page?: number; search?: string }) =>
+    apiClient.get<ApiResponse>('/user/suggest-friends', { params }),
+};
+
 // Upload API
 export const uploadApi = {
   uploadAvatar: (file: File) => {

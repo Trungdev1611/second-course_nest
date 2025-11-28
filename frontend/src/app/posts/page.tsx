@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Row, Col, Input, Pagination } from 'antd';
 import { AntdButton, LazyLoad } from '@/components/common';
@@ -11,19 +11,34 @@ import useTagAPI from '@/hooks/useTagAPI';
 export default function PostsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [searchValue, setSearchValue] = useState(searchParams.get('search') || '');
+  const initialSearch = searchParams.get('search') || '';
+  const initialSort = (searchParams.get('type') as 'newest' | 'popular' | 'trending') || 'newest';
+
+  const [searchValue, setSearchValue] = useState(initialSearch);
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState(initialSearch);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [sortType, setSortType] = useState<'newest' | 'popular' | 'trending'>(initialSort);
   const pageSize = 12;
+
+  // Debounce search value - delay 500ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchValue(searchValue);
+      setCurrentPage(1); // Reset to page 1 when search changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchValue]);
 
   const { usePosts } = usePostAPI();
   const { useTags } = useTagAPI();
 
-  const { data: postsData} = usePosts({
+  const { data: postsData, isLoading } = usePosts({
     page: currentPage,
     per_page: pageSize,
-    search: searchValue || undefined,
-    type: selectedTag || undefined,
+    search: debouncedSearchValue || undefined,
+    type: sortType,
   });
 
   const { data: tagsData } = useTags({ per_page: 20 });
@@ -50,14 +65,47 @@ export default function PostsPage() {
             size="large"
             placeholder="Tìm kiếm bài viết, tác giả, tags..."
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={(e) => {
+              setSelectedTag(null);
+              setSearchValue(e.target.value);
+            }}
             onSearch={(value) => {
               setSearchValue(value);
+              setDebouncedSearchValue(value);
               setCurrentPage(1);
             }}
             enterButton="Tìm kiếm"
+            loading={isLoading}
+            allowClear
           />
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 justify-center pt-4">
+        {[
+          { label: 'Mới nhất', value: 'newest' as const },
+          { label: 'Phổ biến', value: 'popular' as const },
+          { label: 'Trending', value: 'trending' as const },
+        ].map((option) => (
+          <AntdButton
+            key={option.value}
+            variant={sortType === option.value ? 'primary' : 'secondary'}
+            onClick={() => {
+              if (sortType === option.value) return;
+              setSortType(option.value);
+              setCurrentPage(1);
+              router.replace(
+                `/posts?type=${option.value}${
+                  debouncedSearchValue ? `&search=${encodeURIComponent(debouncedSearchValue)}` : ''
+                }`,
+                { scroll: false }
+              );
+            }}
+            className="min-w-[120px]"
+          >
+            {option.label}
+          </AntdButton>
+        ))}
       </div>
 
       <div className="flex flex-wrap gap-2 justify-center">
@@ -65,6 +113,8 @@ export default function PostsPage() {
           variant={!selectedTag ? 'primary' : 'secondary'}
           onClick={() => {
             setSelectedTag(null);
+            setSearchValue('');
+            setDebouncedSearchValue('');
             setCurrentPage(1);
           }}
           className="min-w-[90px]"
@@ -79,6 +129,8 @@ export default function PostsPage() {
               variant={selectedTag === tagName ? 'primary' : 'secondary'}
               onClick={() => {
                 setSelectedTag(tagName);
+                setSearchValue(tagName);
+                setDebouncedSearchValue(tagName);
                 setCurrentPage(1);
               }}
               className="min-w-[90px] font-medium"
@@ -89,7 +141,11 @@ export default function PostsPage() {
         })}
       </div>
 
-      {posts.length === 0 ? (
+      {isLoading && searchValue !== debouncedSearchValue ? (
+        <div className="text-center text-slate-500 py-10">
+          <p>Đang tìm kiếm...</p>
+        </div>
+      ) : posts.length === 0 ? (
         <div className="text-center text-slate-500 py-10">
           <p>Không tìm thấy bài viết nào</p>
         </div>

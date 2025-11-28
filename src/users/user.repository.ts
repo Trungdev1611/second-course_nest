@@ -4,6 +4,7 @@ import { User } from "./user.entity";
 import { DataSource, Repository } from "typeorm";
 import { CreateUserDTO } from "./user.dto";
 import { PaginateAndSearchDTO } from "src/common/dto/paginate.dto";
+import { NotificationEntity } from "src/notification/notification.entity";
 
 @Injectable()
 export class UserRepository {
@@ -179,6 +180,64 @@ export class UserRepository {
 
   const [result] = await this.dataSource.query(sql, [idTargetUser])
   return result
+  }
+
+  async getUsersNotFriends(currentUserId: number, query: PaginateAndSearchDTO) {
+    const { page = 1, per_page = 20, search } = query;
+    
+    // Lấy danh sách friend IDs
+    const currentUser = await this.userRepo.findOne({
+      where: { id: currentUserId },
+      relations: ['friends'],
+    });
+
+    const friendIds = currentUser?.friends?.map((f) => f.id) || [];
+    friendIds.push(currentUserId); // Loại trừ chính user
+
+    const pendingRequests = await this.dataSource
+      .getRepository(NotificationEntity)
+      .createQueryBuilder('notification')
+      .where('notification.requesterId = :currentUserId', { currentUserId })
+      .andWhere('notification.type = :type', { type: 'request_friend' })
+      .andWhere('notification.status = :status', { status: 'pending' })
+      .select('notification.userId', 'userId')
+      .getRawMany();
+
+    const pendingRequestIds = new Set(
+      pendingRequests.map((item) => Number(item.userId)),
+    );
+
+    const queryBuilder = this.userRepo
+      .createQueryBuilder('user')
+      .where('user.id NOT IN (:...friendIds)', { friendIds })
+      .select(['user.id', 'user.name', 'user.email', 'user.image'])
+      .skip((page - 1) * per_page)
+      .take(per_page);
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(user.name ILIKE :search OR user.email ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    
+
+    const [rawData, totals] = await queryBuilder.getManyAndCount();
+
+    const data = rawData.map((user) => ({
+      ...user,
+      isDisable: pendingRequestIds.has(user.id),
+    }));
+
+    return {
+      data,
+      metadata: {
+        total: totals,
+        page,
+        per_page,
+      },
+    };
   }
 }
 

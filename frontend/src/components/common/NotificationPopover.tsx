@@ -14,6 +14,7 @@ export interface NotificationItem {
   status?: 'info' | 'success' | 'warning' | 'error';
   avatar?: ReactNode;
   unread?: boolean;
+  payload?: Record<string, any>;
 }
 
 interface AntdNotificationPopoverProps {

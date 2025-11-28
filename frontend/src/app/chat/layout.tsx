@@ -1,9 +1,10 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { ChatSocketProvider } from './ChatSocketProvider';
 
 export default function ChatLayout({ children }: { children: ReactNode }) {
-  return <ChatSocketProvider>{children}</ChatSocketProvider>;
+  // Socket provider đã được di chuyển lên root layout
+  // để tất cả users đều connect socket khi đã login
+  return <>{children}</>;
 }
 

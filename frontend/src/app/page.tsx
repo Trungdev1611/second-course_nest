@@ -25,7 +25,7 @@ export default function HomePage() {
                 Khám phá bài viết
               </AntdButton>
             </Link>
-            <Link href="/auth/login">
+            <Link href="/login">
               <AntdButton size="large" variant="ghost">
                 Đăng nhập / Đăng ký
               </AntdButton>

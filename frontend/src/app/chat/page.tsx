@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input, Badge, List, Spin } from 'antd';
+import { Button, Input, Badge, List, Spin, Modal, Avatar } from 'antd';
 import {
   PlusOutlined,
   MinusOutlined,
@@ -12,13 +12,15 @@ import {
   SearchOutlined,
   PictureOutlined,
   DeleteOutlined,
+  UserAddOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { AntdAvatar } from '@/components/common';
 import { useAuthStore } from '@/store/authStore';
 import useUserAPI from '@/hooks/useUserAPI';
 import { useChatSocket } from './ChatSocketProvider';
-import { chatApi } from '@/lib/api';
+import { chatApi, friendSuggestionApi } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
 
 const HISTORY_PAGE_SIZE = 5;
 
@@ -50,6 +52,14 @@ interface Participant {
   online?: boolean;
   avatar?: string;
   conversationId?: number;
+}
+
+interface SuggestedFriend {
+  id: number;
+  name: string;
+  email: string;
+  image?: string;
+  isDisable?: boolean;
 }
 
 interface ChatWindowData {
@@ -364,6 +374,62 @@ export default function ChatPage() {
   }, [chatWindows]);
   const [searchQuery, setSearchQuery] = useState('');
   const [joinedRooms, setJoinedRooms] = useState<Set<string>>(new Set()); // Track các rooms đã join
+  const [showFindFriendsModal, setShowFindFriendsModal] = useState(false);
+  const [friendSearchQuery, setFriendSearchQuery] = useState('');
+  const [sendingRequests, setSendingRequests] = useState<Set<number>>(new Set());
+
+  // Fetch danh sách users không phải bạn bè
+  const {
+    data: suggestFriendsData,
+    isLoading: isLoadingSuggestFriends,
+    refetch: refetchSuggestFriends,
+  } = useQuery({
+    queryKey: ['suggest-friends', friendSearchQuery],
+    queryFn: async () => {
+      const res = await friendSuggestionApi.getSuggestFriends({
+        search: friendSearchQuery || undefined,
+        per_page: 20,
+      });
+      return (res.data?.data || []) as SuggestedFriend[];
+    },
+    enabled: showFindFriendsModal,
+  });
+
+  // Handle send friend request
+  const handleSendFriendRequest = (targetUserId: number) => {
+    if (!socket || !isConnected) {
+      console.warn('Socket chưa sẵn sàng');
+      return;
+    }
+
+    setSendingRequests((prev) => new Set(prev).add(targetUserId));
+
+    socket.emit('requestFriend', {
+      targetUserId,
+      message: 'Xin chào, mình muốn kết bạn với bạn!',
+    });
+
+    // Listen for success
+    const handleSuccess = () => {
+      setSendingRequests((prev) => {
+        const next = new Set(prev);
+        next.delete(targetUserId);
+        return next;
+      });
+      refetchSuggestFriends();
+    };
+
+    const handleError = () => {
+      setSendingRequests((prev) => {
+        const next = new Set(prev);
+        next.delete(targetUserId);
+        return next;
+      });
+    };
+
+    socket.once('friendRequest:sent', handleSuccess);
+    socket.once('requestFriend:error', handleError);
+  };
 
   // Utility function: Tạo conversation key từ 2 user IDs (sort tăng dần)
   const generateConversationKey = (userId1: string, userId2: string): string => {
@@ -950,6 +1016,19 @@ export default function ChatPage() {
             />
           )}
         </div>
+
+        {/* Button tìm bạn mới */}
+        <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+          <Button
+            type="dashed"
+            block
+            icon={<UserAddOutlined />}
+            onClick={() => setShowFindFriendsModal(true)}
+            className="!border-slate-300 dark:!border-slate-600 !text-slate-700 dark:!text-slate-300"
+          >
+            Tìm bạn kết bạn mới
+          </Button>
+        </div>
       </div>
 
       {/* Main Content - Chat Windows */}
@@ -1021,6 +1100,83 @@ export default function ChatPage() {
           ))}
         </div>
       )}
+
+      {/* Modal tìm bạn mới */}
+      <Modal
+        title="Tìm bạn kết bạn mới"
+        open={showFindFriendsModal}
+        onCancel={() => {
+          setShowFindFriendsModal(false);
+          setFriendSearchQuery('');
+        }}
+        footer={null}
+        width={600}
+      >
+        <div className="space-y-4">
+          <Input
+            placeholder="Tìm kiếm theo tên hoặc email..."
+            prefix={<SearchOutlined className="text-slate-400" />}
+            value={friendSearchQuery}
+            onChange={(e) => setFriendSearchQuery(e.target.value)}
+            allowClear
+          />
+
+          <div className="max-h-96 overflow-y-auto">
+            {isLoadingSuggestFriends ? (
+              <div className="flex items-center justify-center py-8">
+                <Spin size="large" />
+              </div>
+            ) : !suggestFriendsData || suggestFriendsData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <UserOutlined className="text-4xl text-slate-300 dark:text-slate-600 mb-2" />
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {friendSearchQuery
+                    ? 'Không tìm thấy người dùng nào'
+                    : 'Không có người dùng nào để gợi ý'}
+                </p>
+              </div>
+            ) : (
+              <List
+                dataSource={suggestFriendsData}
+                renderItem={(suggestedUser) => (
+                  <List.Item
+                    className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <AntdAvatar
+                          src={suggestedUser.image}
+                          name={suggestedUser.name}
+                          size="large"
+                        />
+                      }
+                      title={
+                        <span className="font-medium text-slate-900 dark:text-slate-100">
+                          {suggestedUser.name}
+                        </span>
+                      }
+                      description={
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          {suggestedUser.email}
+                        </span>
+                      }
+                    />
+                    <Button
+                      type="primary"
+                      icon={<UserAddOutlined />}
+                      loading={sendingRequests.has(suggestedUser.id)}
+                      disabled={suggestedUser.isDisable}
+                      onClick={() => handleSendFriendRequest(suggestedUser.id)}
+                    >
+                      {suggestedUser.isDisable ? 'Đã gửi lời mời' : 'Kết bạn'}
+                    </Button>
+                  </List.Item>
+                )}
+              />
+            )}
+          </div>
+        </div>
+      </Modal>
       </div>
     </main>
   );

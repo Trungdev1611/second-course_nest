@@ -1,11 +1,9 @@
 import { authApi } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
-import { useRouter } from 'next/navigation';
 
 export default function useAuthAPI() {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const { setUser, setToken, logout } = useAuthStore();
 
   const useLogin = () => {
@@ -89,7 +87,8 @@ export default function useAuthAPI() {
       mutationFn: async () => {
         logout();
         queryClient.clear();
-        router.push('/');
+        // Không redirect, để user tự quyết định đi đâu
+        // ProtectedRoute sẽ tự động show login khi user vào route cần token
       },
     });
   };

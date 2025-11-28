@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { useAuthStore } from '@/store/authStore';
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -8,6 +9,14 @@ const apiClient: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Helper function to clear invalid token (when 401)
+const clearInvalidToken = () => {
+  if (typeof window !== 'undefined') {
+    // Clear auth state in store
+    useAuthStore.getState().logout();
+  }
+};
 
 // Request interceptor
 apiClient.interceptors.request.use(
@@ -47,14 +56,11 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const status = error.response.status;
       
-      // Handle 401 Unauthorized
+      // Handle 401 Unauthorized - Token expired or invalid
       if (status === 401) {
-        // Clear token and redirect to login
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          // window.location.href = '/login';
-        }
+        // Clear invalid token but don't redirect
+        // ProtectedRoute will handle showing login when user accesses protected routes
+        clearInvalidToken();
       }
       
       // Handle 403 Forbidden

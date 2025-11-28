@@ -5,6 +5,7 @@ import { RoleEntity } from "src/role/role.entity";
 import { BlogEntity } from "src/blogs/blog.entity";
 import { LikeEntity } from "src/likes/Like.entity";
 import { CommentEntity } from "src/comments/comment.entity";
+import { NotificationEntity } from "src/notification/notification.entity";
 // import { Friendship } from "src/friend_ship/friend_ship.entity";
 @Entity()
 export class User extends BaseEntity {
@@ -77,6 +78,8 @@ export class User extends BaseEntity {
   })
   friends: User[]
 
+  @OneToMany(() => NotificationEntity, notifies => notifies.user)
+  notifies: NotificationEntity[]
 
   constructor(partial: Partial<User>) {
     super();

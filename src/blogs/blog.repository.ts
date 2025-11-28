@@ -8,6 +8,7 @@ import { LikeEntity } from 'src/likes/Like.entity';
 import { CommentEntity } from 'src/comments/comment.entity';
 import { PaginateAndSearchDTO } from 'src/common/dto/paginate.dto';
 import { Blog_Tags_Entity } from 'src/blog_tags/blog_tags.entity';
+import { LogExecutionTime } from 'src/common/decorators/log-execution-time.decorator';
 
 
 // From TypeORM v0.3
@@ -24,15 +25,23 @@ export class BlogRepository {
     return this.repo.find();
   }
 
+  @LogExecutionTime()
   async findAndPaginate(query: queryBlogDTO) {
     const {page = 1, per_page = 20, search = '', type = "newest"} = query
     const skip = (page - 1) * per_page
    // Step 1: get paged blog IDs
 const idsQuery = this.repo.createQueryBuilder('blog')
-.select('blog.id', 'id');
+.select('blog.id', 'id')
+.where('blog.status = :status', { status: 'published' }); // Filter published only
 
 if(search) {
-idsQuery.where('blog.title LIKE :s OR blog.content LIKE :s', { s: `%${search}%` });
+  // idsQuery.where('blog.title LIKE :s OR blog.content LIKE :s', { s: `%${search}%` });
+  
+  // Dùng full-text search thay vì LIKE (nhanh hơn với GIN index)
+  idsQuery.andWhere(
+    `to_tsvector('simple', COALESCE(blog.title, '') || ' ' || COALESCE(blog.excerpt, '') || ' ' || COALESCE(blog.content, '')) @@ plainto_tsquery('simple', :s)`,
+    { s: search }
+  );
 }
 
 if(type === BlogSortType.NEWEST) idsQuery.orderBy('blog.updated_at','DESC');
@@ -62,10 +71,19 @@ const items = await this.repo.createQueryBuilder('blog', )
 .orderBy(`array_position(ARRAY[${ids.join(',')}], blog.id)`) // preserve order
 .getRawMany();
 
-console.log("itemss::::", items)
 // Step 3: total
-const totalQuery = this.repo.createQueryBuilder('blog');
-if(search) totalQuery.where('blog.title LIKE :s OR blog.content LIKE :s', { s: `%${search}%` });
+// const totalQuery = this.repo.createQueryBuilder('blog');
+// if(search) totalQuery.where('blog.title LIKE :s OR blog.content LIKE :s', { s: `%${search}%` });
+
+const totalQuery = this.repo.createQueryBuilder('blog')
+.where('blog.status = :status', { status: 'published' });
+if(search) {
+  // Dùng full-text search cho count query
+  totalQuery.andWhere(
+    `to_tsvector('simple', COALESCE(blog.title, '') || ' ' || COALESCE(blog.excerpt, '') || ' ' || COALESCE(blog.content, '')) @@ plainto_tsquery('simple', :s)`,
+    { s: search }
+  );
+}
 const total = await totalQuery.getCount();
 
 return { items, total, page, per_page };

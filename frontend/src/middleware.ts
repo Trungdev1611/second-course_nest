@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
     '/posts',
     '/tags',
     '/search',
-    '/auth/login',
+    '/login',
     '/auth/register',
     '/auth/forgot-password',
     '/auth/reset-password',
@@ -53,7 +53,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Nếu đã có token trong cookies và đang ở trang login/register, redirect về home
-  if (token && isAuthRoute && (pathname === '/auth/login' || pathname === '/auth/register')) {
+  if (token && isAuthRoute && (pathname === '/login' || pathname === '/auth/register')) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

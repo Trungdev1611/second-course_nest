@@ -173,7 +173,7 @@ CREATE TABLE followers (
 ```typescript
 // Module: auth.module.ts
 POST   /api/auth/register           // Đăng ký user
-POST   /api/auth/login              // Login, trả access + refresh token
+POST   /api/login              // Login, trả access + refresh token
 POST   /api/auth/refresh            // Refresh access token
 POST   /api/auth/logout             // Logout, xóa refresh token
 POST   /api/auth/verify-email       // Xác thực email
@@ -191,7 +191,7 @@ GET    /api/auth/me                 // Lấy thông tin user hiện tại
 └── reset-password/page.tsx         // Form reset mật khẩu
 
 // Components
-├── components/auth/LoginForm.tsx
+├── components/loginForm.tsx
 ├── components/auth/RegisterForm.tsx
 └── components/auth/AuthGuard.tsx   // Protected routes
 ```
@@ -1622,7 +1622,7 @@ describe('Posts API (e2e)', () => {
     
     // Login to get token
     const res = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/login')
       .send({ email: 'test@test.com', password: 'password' });
     accessToken = res.body.accessToken;
   });

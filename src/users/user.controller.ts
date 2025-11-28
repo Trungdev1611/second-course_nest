@@ -38,6 +38,26 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Get('suggest-friends')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Lấy danh sách users không phải bạn bè để gợi ý kết bạn',
+    description: 'Trả về danh sách users chưa phải bạn bè, có thể search',
+  })
+  @ApiResponse({
+    status: 200,
+    schema: {
+      example: {
+        data: [{ id: 1, name: 'User 1', email: 'user1@example.com', image: '...' }],
+        meta: { total: 10, page: 1, per_page: 20 },
+      },
+    },
+  })
+  getSuggestFriends(@Req() req, @Query() query: PaginateAndSearchDTO) {
+    return this.userService.getUsersNotFriends(req.user.id, query);
+  }
+
   @Get(':id/posts')
   @ApiBearerAuth()
   @UseGuards(OptionalJwtGuard)
@@ -207,4 +227,5 @@ export class UserController {
     return this.userService.updateAvatarOfUser(param.id, file)
   }
 
+  
 }

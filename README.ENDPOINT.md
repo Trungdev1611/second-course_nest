@@ -79,10 +79,10 @@
 
 | Method | Endpoint | Description | Query Params | Response |
 |--------|----------|-------------|--------------|----------|
-| GET | `/api/search` | Full-text search bài viết | `?q=react hooks&page=1&limit=20` | `{ data: [posts with highlights], meta }` |
-| GET | `/api/search/suggest` | Autocomplete suggestions | `?q=rea` | `{ suggestions: ["react", "redux", "react native"] }` |
+| GET | `/api/search` | Full-text search bài viết | `?q=react hooks&page=1&limit=20` | `{ data: [posts with highlights], meta }` |✅
+| GET | `/api/search/suggest` | Autocomplete suggestions | `?q=rea` | `{ suggestions: ["react", "redux", "react native"] }` |✅
 | GET | `/api/search/advanced` | Advanced search với filters | `?q=react&tags=javascript,tutorial&author=john&dateFrom=2024-01-01&dateTo=2024-12-31` | `{ data: [posts], meta, aggregations }` |
-| GET | `/api/search/related/:id` | Tìm bài viết liên quan (More Like This) | `?limit=5` | `{ data: [posts] }` |
+| GET | `/api/search/related/:id` | Tìm bài viết liên quan (More Like This) | `?limit=5` | `{ data: [posts] }` |✅
 
 ### Admin Only
 

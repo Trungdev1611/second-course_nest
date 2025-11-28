@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
           </AntdButton>
         </AntdForm>
         <p className="text-center text-sm">
-          <Link href="/auth/login" className="text-blue-600">
+          <Link href="/login" className="text-blue-600">
             Quay lại đăng nhập
           </Link>
         </p>
