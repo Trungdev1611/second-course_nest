@@ -2,15 +2,18 @@ name: HelloWorld
 
 on: [push]
 
-jobs: 
+jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-    
+
       - name: Print hello-world
-        run: echo "Hello World: this is the first time that I have written a workflow"
+        run: |
+          echo "Hello World: this is the first time that I have written a workflow"
 
       - name: you can do it
-        run: echo "I did it well"
+        run: |
+          echo "I did it well"
+
