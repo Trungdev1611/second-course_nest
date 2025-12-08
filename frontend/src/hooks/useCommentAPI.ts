@@ -6,7 +6,7 @@ import { mockCommentsData } from '@/data/mock';
 export default function useCommentAPI() {
   const queryClient = useQueryClient();
 
-  const useComments = (postId: number, params?: { page?: number; per_page?: number; sort?: string }) => {
+  const useComments = (postId: number, params?: { page?: number; per_page?: number; sort?: string }, options?: {enabled?: boolean}) => {
     return useQuery({
       queryKey: ['comments', postId, params],
       queryFn: async () => {
@@ -23,7 +23,7 @@ export default function useCommentAPI() {
           `getComments(postId: ${postId})`
         );
       },
-      enabled: !!postId && !isNaN(postId),
+      enabled: options?.enabled && !!postId && !isNaN(postId),
     });
   };
 

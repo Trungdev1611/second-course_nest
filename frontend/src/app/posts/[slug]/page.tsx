@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useLazyLoad } from '@/hooks/useLazyLoad';
 
 dayjs.extend(relativeTime);
 
@@ -285,7 +286,16 @@ export default function PostDetailPage({ params }: PostDetailProps) {
 
   const { data: postData} = usePostDetail(postId);
   const { data: relatedData } = useRelatedPosts(postId);
-  const { data: commentsData} = useComments(postId, { per_page: 5 });
+
+  const [sectionCommentRef, isVisibleComment] = useLazyLoad(
+    {
+      threshold: 0,
+   rootMargin: "0px 0px 200px 0px",
+   triggerOnce: true
+    }
+  )
+  const { data: commentsData} = useComments(postId, { per_page: 5 },
+    {enabled:  isVisibleComment} );
   const createCommentMutation = useCreateComment();
   const createReplyMutation = useCreateReply();
   const incrementViewMutation = useIncrementView();
@@ -403,8 +413,8 @@ export default function PostDetailPage({ params }: PostDetailProps) {
           <section className="space-y-2">
             <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Bài viết liên quan</h2>
             <Space direction="vertical" className="w-full">
-              {related.map((item: any) => (
-                <AntdCard key={item.id}>
+              {related.map((item: any, index: number) => (
+                <AntdCard key={index}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -463,9 +473,13 @@ export default function PostDetailPage({ params }: PostDetailProps) {
           )}
 
           {/* Comments List */}
+          <div ref = {sectionCommentRef} style={{ minHeight: 50 }}>
           {comments.length === 0 ? (
             <p className="text-center text-slate-500 dark:text-slate-400 py-8">Chưa có bình luận nào</p>
-          ) : (
+          ) :
+          
+          (
+
             <div className="space-y-0">
               {comments.map((comment: any) => {
                 const commentId = comment.comment_id || comment.id;
@@ -552,6 +566,8 @@ export default function PostDetailPage({ params }: PostDetailProps) {
               })}
             </div>
           )}
+          </div>
+    
 
 
           {!user && (

@@ -1,0 +1,245 @@
+# ============================================
+# Docker Compose Configuration
+# ============================================
+# File này định nghĩa các services: PostgreSQL, Redis, Elasticsearch, và NestJS Backend
+#
+# 📋 CÁCH SỬ DỤNG:
+#
+# 1️⃣ CHUẨN BỊ:
+#    - Đảm bảo đã có file .env (copy từ .env.example nếu chưa có)
+#    - File .env chứa các biến môi trường cần thiết (xem .env.example)
+#
+# 2️⃣ CHẠY TẤT CẢ SERVICES:
+#    docker-compose up -d
+#    → Khởi động tất cả services ở chế độ background (detached mode)
+#    → Services sẽ tự động chờ nhau khởi động nhờ healthcheck và depends_on
+#
+# 3️⃣ BUILD VÀ CHẠY (khi có thay đổi code):
+#    docker-compose up -d --build
+#    → Build lại images và khởi động services
+#    → Dùng khi có thay đổi trong Dockerfile hoặc code
+#
+# 4️⃣ XEM LOGS:
+#    docker-compose logs -f                    # Xem logs tất cả services
+#    docker-compose logs -f backend            # Xem logs chỉ backend
+#    docker-compose logs -f postgres           # Xem logs chỉ postgres
+#
+# 5️⃣ DỪNG SERVICES:
+#    docker-compose stop                       # Dừng nhưng giữ containers
+#    docker-compose down                       # Dừng và xóa containers (giữ volumes)
+#    docker-compose down -v                    # Dừng và xóa cả volumes (⚠️ mất data!)
+#
+# 6️⃣ CHẠY RIÊNG TỪNG SERVICE:
+#    docker-compose up postgres                # Chỉ chạy postgres
+#    docker-compose up redis                   # Chỉ chạy redis
+#    docker-compose up elasticsearch           # Chỉ chạy elasticsearch
+#    docker-compose up backend                 # Chỉ chạy backend
+#
+# 6️⃣.1 CHẠY CHỈ 3 SERVICES (PostgreSQL, Redis, Elasticsearch) - Backend chạy local:
+#    docker-compose up -d postgres redis elasticsearch
+#    → Chạy chỉ 3 containers, backend NestJS chạy local trên máy
+#    → Backend local sẽ kết nối qua localhost với các ports:
+#       - PostgreSQL: localhost:3336 (hoặc POSTGRES_HOST_PORT trong .env)
+#       - Redis: localhost:6379
+#       - Elasticsearch: http://localhost:9200
+#    → Trong .env, cần dùng localhost thay vì tên service:
+#       DB_HOST=localhost (không phải 'postgres')
+#       REDIS_URL=redis://localhost:6379 (không phải 'redis://redis:6379')
+#       URL_ES_SEARCH=http://localhost:9200 (không phải 'http://elasticsearch:9200')
+#
+# 7️⃣ REBUILD SERVICE CỤ THỂ:
+#    docker-compose up -d --build backend       # Rebuild và restart backend
+#
+# 8️⃣ XEM TRẠNG THÁI SERVICES:
+#    docker-compose ps                         # Xem status các containers
+#    docker-compose top                        # Xem processes đang chạy
+#
+# 9️⃣ TRUY CẬP SERVICES:
+#    - Backend API: http://localhost:3000 (hoặc PORT trong .env)
+#    - PostgreSQL: localhost:3336 (hoặc POSTGRES_HOST_PORT trong .env)
+#    - Redis: localhost:6379
+#    - Elasticsearch: http://localhost:9200
+#
+# 🔟 CÁC LỆNH KHÁC:
+#    docker-compose restart backend            # Restart service backend
+#    docker-compose exec backend sh            # Vào shell của backend container
+#    docker-compose exec postgres psql -U postgres -d fullstack  # Vào PostgreSQL
+#
+# 📝 LƯU Ý:
+#    - File .env KHÔNG được commit vào git (đã có trong .gitignore)
+#    - File .env.example là template, có thể commit vào git
+#    - Khi chạy trong Docker, các services giao tiếp qua tên service (postgres, redis, elasticsearch)
+#    - URL_ES_SEARCH trong .env phải dùng 'elasticsearch' thay vì 'localhost' khi chạy docker
+#    - pull_policy: never → KHÔNG pull images từ Docker Hub, chỉ dùng images local đã có
+#      Nếu thiếu image nào, cần pull thủ công: docker pull <image_name>
+#
+# ============================================
+
+services:
+  # ============================================
+  # PostgreSQL Database Service
+  # ============================================
+  # Chạy riêng: docker-compose up postgres
+  # Xem logs: docker-compose logs -f postgres
+  # Truy cập: psql -h localhost -p 3336 -U postgres -d fullstack
+  postgres:
+    image: postgres:16
+    pull_policy: never  # ✅ KHÔNG pull từ hub, chỉ dùng image local đã có
+    container_name: second-course-nest-db
+    environment:
+      # ✅ Updated: Sử dụng biến môi trường từ .env file (nếu không có thì dùng default)
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-fullstack}
+    ports:
+      # ✅ Updated: Map port host:container (default host port: 3336, container port: 5432)
+      # Có thể thêm POSTGRES_HOST_PORT vào .env nếu muốn đổi port trên host
+      - "${POSTGRES_HOST_PORT:-3336}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # ✅ Updated: Sử dụng biến POSTGRES_USER từ environment
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # ============================================
+  # Redis Cache Service
+  # ============================================
+  # Chạy riêng: docker-compose up redis
+  # Xem logs: docker-compose logs -f redis
+  # Truy cập: redis-cli -h localhost -p 6379
+  redis:
+    image: redis:7.2-bookworm  # ✅ Dùng image redis:7.2-bookworm đã có local
+    pull_policy: never  # ✅ KHÔNG pull từ hub, chỉ dùng image local đã có
+    container_name: second-course-nest-redis
+    command: redis-server --appendonly yes  # ✅ Chạy Redis server với persistence
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # ============================================
+  # Elasticsearch Service
+  # ============================================
+  # Chạy riêng: docker-compose up elasticsearch
+  # Xem logs: docker-compose logs -f elasticsearch
+  # Truy cập: http://localhost:9200
+  # Kiểm tra health: curl http://localhost:9200/_cluster/health
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    pull_policy: never  # ✅ KHÔNG pull từ hub, chỉ dùng image local đã có
+    container_name: second-course-nest-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
+  # ============================================
+  # NestJS Backend Service
+  # ============================================
+  # Chạy riêng: docker-compose up backend
+  # Rebuild: docker-compose up -d --build backend
+  # Xem logs: docker-compose logs -f backend
+  # Restart: docker-compose restart backend
+  # Vào shell: docker-compose exec backend sh
+  # Truy cập API: http://localhost:3000 (hoặc PORT trong .env)
+  # Swagger docs: http://localhost:3000/api/docs
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: second-course-nest-backend
+    ports:
+      # ✅ Updated: Sử dụng PORT từ .env file (default: 3000)
+      - "${PORT:-3000}:3000"
+    # ✅ Updated: Load tất cả biến từ .env file vào container
+    env_file:
+      - .env
+    environment:
+      # ✅ Updated: Sử dụng các biến từ .env file với giá trị default
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-3000}
+      - PORT_DB=${PORT_DB:-5432}
+      - DOMAIN=${DOMAIN:-http://localhost:3000}
+      # ✅ Updated: URL_ES_SEARCH từ .env (lưu ý: trong docker network phải dùng 'elasticsearch' thay vì 'localhost')
+      # Nếu .env có URL_ES_SEARCH=http://localhost:9200, cần đổi thành http://elasticsearch:9200 khi chạy docker
+      - URL_ES_SEARCH=${URL_ES_SEARCH:-http://elasticsearch:9200}
+      # Database connection (using service name in docker network)
+      # ✅ Updated: Sử dụng biến môi trường cho DB connection (có thể thêm vào .env sau)
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-mysecretpassword}
+      - DB_DATABASE=${DB_DATABASE:-fullstack}
+      # Redis connection
+      # ✅ Updated: Sử dụng biến REDIS_URL từ .env (nếu có) hoặc default
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      # ✅ Updated: Các biến khác từ .env sẽ được load tự động qua env_file
+      - jwtkey=${jwtkey}
+      - APP_PASSWORD_GMAIL_SEND=${APP_PASSWORD_GMAIL_SEND}
+      - GMAIL_SEND=${GMAIL_SEND}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+# ============================================
+# Volumes Configuration
+# ============================================
+# Volumes lưu trữ dữ liệu persistent (dữ liệu không mất khi container bị xóa)
+# Xem volumes: docker volume ls
+# Xem chi tiết: docker volume inspect <volume_name>
+# Xóa volume: docker volume rm <volume_name> (⚠️ mất data!)
+volumes:
+  postgres_data:
+    external: true
+    name: 531aea41909a4ac673910ce8e6adf0b0a172e28b64b33817b721eb040f8edc44 # hash of the old postgres_data volume, because we want to reuse the old data
+  redis_data:
+  elasticsearch_data:
+
+# ============================================
+# Networks Configuration
+# ============================================
+# Network để các services giao tiếp với nhau
+# Trong Docker network, các services dùng tên service để giao tiếp:
+# - postgres (thay vì localhost)
+# - redis (thay vì localhost)
+# - elasticsearch (thay vì localhost)
+# Xem networks: docker network ls
+# Xem chi tiết: docker network inspect <network_name>
+networks:
+  app-network:
+    driver: bridge
+

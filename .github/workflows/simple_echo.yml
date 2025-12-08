@@ -1,0 +1,22 @@
+name: simple echo - just run with backend
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore: 
+      - frontend/**
+
+jobs:
+  first-start:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository-code
+        uses: actions/checkout@v4
+   
+
+      - name: Print success message
+        run: echo "Checout successfully"
+
+        

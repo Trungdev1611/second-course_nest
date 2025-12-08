@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
-  timeout: 30000,
+  timeout: 0,
   headers: {
     'Content-Type': 'application/json',
   },

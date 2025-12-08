@@ -6,11 +6,11 @@ import { QueryLoggerSubscriber } from 'src/common/logger/query';
 dotenv.config(); 
 export const dataSourceConfig: PostgresConnectionOptions = {
   type: 'postgres',
-  host: 'localhost',
-  port: Number(process.env.PORT_DB)  || 3336,
-  username: 'postgres',
-  password: 'mysecretpassword',
-  database: 'fullstack',
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || process.env.PORT_DB) || 3336,
+  username: process.env.DB_USERNAME || 'postgres',
+  password: process.env.DB_PASSWORD || 'mysecretpassword',
+  database: process.env.DB_DATABASE || 'fullstack',
   entities: [__dirname + "/../**/*.entity.{ts,js}"],
   // synchronize: true,
   migrationsTableName: 'migrations',
@@ -18,7 +18,7 @@ export const dataSourceConfig: PostgresConnectionOptions = {
   extra: {
     max: 10,
     connectionTimeoutMillis: 5000,
-    idleTimeoutMillis: 30000,
+    idleTimeoutMillis: 50000,
   },
   // ✅ Fix: Chỉ load files trực tiếp trong migrations folder, không recursive
   migrations: [__dirname + '/../migrations/*.ts'],
