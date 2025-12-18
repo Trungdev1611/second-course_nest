@@ -14,6 +14,10 @@ export const dataSourceConfig: PostgresConnectionOptions = {
   entities: [__dirname + "/../**/*.entity.{ts,js}"],
   // synchronize: true,
   migrationsTableName: 'migrations',
+  //tránh chết app khi deploy
+  ssl: {
+    rejectUnauthorized: false,
+  },
   // ✅ Fix: Thêm connection pool config để tránh connection leak
   extra: {
     max: 10,
