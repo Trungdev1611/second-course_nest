@@ -6,6 +6,7 @@ import { BlogEntity } from "src/blogs/blog.entity";
 import { LikeEntity } from "src/likes/Like.entity";
 import { CommentEntity } from "src/comments/comment.entity";
 import { NotificationEntity } from "src/notification/notification.entity";
+import { BookmarkEntity } from "src/bookmark/Bookmark.entity";
 // import { Friendship } from "src/friend_ship/friend_ship.entity";
 @Entity()
 export class User extends BaseEntity {
@@ -81,6 +82,11 @@ export class User extends BaseEntity {
   @OneToMany(() => NotificationEntity, notifies => notifies.user)
   notifies: NotificationEntity[]
 
+  //1 user có thể thực hiện hành động bookmark nhiều lần => onetomany => có nhiều bản ghi bên bookmark
+  @OneToMany(() => BookmarkEntity, bookmarks =>bookmarks.user )
+  bookmarks: BookmarkEntity[]
+
+  
   constructor(partial: Partial<User>) {
     super();
     Object.assign(this, partial);

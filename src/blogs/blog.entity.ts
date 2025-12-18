@@ -1,4 +1,5 @@
 import { Blog_Tags_Entity } from 'src/blog_tags/blog_tags.entity';
+import { BookmarkEntity } from 'src/bookmark/Bookmark.entity';
 import { CommentEntity } from 'src/comments/comment.entity';
 import { BaseEntity } from 'src/common/base.entity';
 import { User } from 'src/users/user.entity';
@@ -54,6 +55,9 @@ export class BlogEntity extends BaseEntity {
   // Để get likes, query: WHERE likeable_type = 'post' AND likeable_id = post.id
   // @OneToMany(() => LikeEntity, (like) => like.post)
   // postLikes: LikeEntity[]
+
+  @OneToMany(() => BookmarkEntity, bookmarks => bookmarks.posts)
+  bookmarks: BookmarkEntity[]
 
   constructor(blog: Partial<BlogEntity>) {
     super();

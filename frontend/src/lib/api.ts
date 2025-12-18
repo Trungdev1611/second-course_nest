@@ -122,7 +122,12 @@ export const commentApi = {
 // Tag API
 export const tagApi = {
   getTags: (params?: { page?: number; per_page?: number; search?: string }) =>
-    apiClient.get<ApiResponse>('/tag/getlist', { params }),
+    apiClient.get<ApiResponse>('/tag/getlist', {
+      params,
+      headers: {
+        'Cache-Control': 'no-cache', // báo server đừng trả 304
+      },
+    }),
 };
 
 // Chat API

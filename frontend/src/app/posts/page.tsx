@@ -46,7 +46,7 @@ export default function PostsPage() {
   const posts = postsData?.data || [];
   const tags = tagsData?.data || [];
   const totalPosts = postsData?.meta?.total || 0;
-  console.log('tag:::', posts)
+  console.log('tag:::', tagsData)
   if(!posts || !tags) {
     return null
   }
@@ -122,7 +122,7 @@ export default function PostsPage() {
           Tất cả
         </AntdButton>
         {tags.slice(0, 10).map((tag: any) => {
-          const tagName = tag.name || tag.tag_name;
+          const tagName = tag.name || tag.tag_tag_name;
           return (
             <AntdButton
               key={tag.id}

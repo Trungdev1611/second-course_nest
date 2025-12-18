@@ -1,0 +1,30 @@
+name: Build Image backend with docker compose and self-hosted
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore: 
+      - frontend/**
+
+jobs:
+  build-and-test:
+    runs-on: local-test-self-hosted
+
+    steps:
+      - name: Checkout to branch of github
+        uses: actions/checkout@v4
+
+      - name: set up Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Build docker compose
+        run: docker compose up --build
+
+      - name: Stop containers
+        run: docker compose down

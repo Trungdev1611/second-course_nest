@@ -84,7 +84,7 @@ services:
   # Truy cập: psql -h localhost -p 3336 -U postgres -d fullstack
   postgres:
     image: postgres:16
-    pull_policy: never  # ✅ KHÔNG pull từ hub, chỉ dùng image local đã có
+    pull_policy: if_not_present  # ✅ KHÔNG pull từ hub khi local hoặc runner đã có
     container_name: second-course-nest-db
     environment:
       # ✅ Updated: Sử dụng biến môi trường từ .env file (nếu không có thì dùng default)
@@ -114,7 +114,7 @@ services:
   # Truy cập: redis-cli -h localhost -p 6379
   redis:
     image: redis:7.2-bookworm  # ✅ Dùng image redis:7.2-bookworm đã có local
-    pull_policy: never  # ✅ KHÔNG pull từ hub, chỉ dùng image local đã có
+    pull_policy: if_not_present  # ✅ KHÔNG pull từ hub khi local hoặc runner đã có
     container_name: second-course-nest-redis
     command: redis-server --appendonly yes  # ✅ Chạy Redis server với persistence
     ports:
@@ -138,7 +138,7 @@ services:
   # Kiểm tra health: curl http://localhost:9200/_cluster/health
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    pull_policy: never  # ✅ KHÔNG pull từ hub, chỉ dùng image local đã có
+    pull_policy: if_not_present  # ✅ KHÔNG pull từ hub khi local hoặc runner đã có
     container_name: second-course-nest-elasticsearch
     environment:
       - discovery.type=single-node
@@ -174,14 +174,14 @@ services:
     container_name: second-course-nest-backend
     ports:
       # ✅ Updated: Sử dụng PORT từ .env file (default: 3000)
-      - "${PORT:-3000}:3000"
+      - "${PORT:-3001}:3001"  #Nếu .env có PORT, dùng giá trị đó, nếu không thì mặc định là 3002.
     # ✅ Updated: Load tất cả biến từ .env file vào container
     env_file:
       - .env
     environment:
       # ✅ Updated: Sử dụng các biến từ .env file với giá trị default
       - NODE_ENV=${NODE_ENV:-production}
-      - PORT=${PORT:-3000}
+      - PORT=${PORT:-3001} 
       - PORT_DB=${PORT_DB:-5432}
       - DOMAIN=${DOMAIN:-http://localhost:3000}
       # ✅ Updated: URL_ES_SEARCH từ .env (lưu ý: trong docker network phải dùng 'elasticsearch' thay vì 'localhost')

@@ -19,14 +19,15 @@ import { FriendshipModule } from './friend_ship/friend_ship.module';
 import { NotificationModule } from './notification/notification.module';
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      ...dataSourceConfig
-    }), 
+
     ConfigModule.forRoot({
       isGlobal: true, // 👈 Giúp ConfigModule dùng được ở mọi nơi
       envFilePath: '.env', // (tuỳ chọn) chỉ định file env
       cache: true, // (tuỳ chọn) cache để load nhanh hơn
     }),
+    TypeOrmModule.forRoot({
+      ...dataSourceConfig
+    }), 
     UserModule,
     AuthModule,
     BlogModule,

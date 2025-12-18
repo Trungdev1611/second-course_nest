@@ -25,25 +25,3 @@ export default function TagsPage() {
           <p>Chưa có tag nào</p>
         </div>
       ) : (
-        <Row gutter={[20, 20]}>
-          {tags.map((tag: any) => (
-            <Col key={tag.id} xs={24} sm={12}>
-              <AntdCard hoverable>
-                <Space direction="vertical" size="small">
-                  <AntdTag color="blue">{tag.tag_name}</AntdTag>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-slate-500">Tag ID: {tag.id}</p>
-                    <Link href={`/tags/${tag.tag_name}`}>
-                      <AntdButton variant="ghost">Xem bài viết</AntdButton>
-                    </Link>
-                  </div>
-                </Space>
-              </AntdCard>
-            </Col>
-          ))}
-        </Row>
-      )}
-    </main>
-  );
-}
-

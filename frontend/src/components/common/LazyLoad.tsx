@@ -12,6 +12,10 @@ interface LazyLoadProps {
   className?: string;
 }
 
+/**
+ * LazyLoad component - Wrapper component để lazy load content
+ * Sử dụng callback ref để đảm bảo hoạt động tốt trong mọi trường hợp
+ */
 export function LazyLoad({
   children,
   threshold = 0.1,
@@ -20,14 +24,14 @@ export function LazyLoad({
   placeholder,
   className = '',
 }: LazyLoadProps) {
-  const [ref, isVisible] = useLazyLoad({
+  const [setRef, isVisible] = useLazyLoad({
     threshold,
     rootMargin,
     triggerOnce,
   });
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={setRef} className={className}>
       {isVisible ? (
         children
       ) : (

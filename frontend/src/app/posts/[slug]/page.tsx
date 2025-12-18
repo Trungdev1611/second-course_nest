@@ -287,13 +287,11 @@ export default function PostDetailPage({ params }: PostDetailProps) {
   const { data: postData} = usePostDetail(postId);
   const { data: relatedData } = useRelatedPosts(postId);
 
-  const [sectionCommentRef, isVisibleComment] = useLazyLoad(
-    {
-      threshold: 0,
-   rootMargin: "0px 0px 200px 0px",
-   triggerOnce: true
-    }
-  )
+  const [setCommentRef, isVisibleComment] = useLazyLoad({
+    threshold: 0,
+    rootMargin: "0px 0px 200px 0px",
+    triggerOnce: true
+  });
   const { data: commentsData} = useComments(postId, { per_page: 5 },
     {enabled:  isVisibleComment} );
   const createCommentMutation = useCreateComment();
@@ -473,7 +471,7 @@ export default function PostDetailPage({ params }: PostDetailProps) {
           )}
 
           {/* Comments List */}
-          <div ref = {sectionCommentRef} style={{ minHeight: 50 }}>
+          <div ref={setCommentRef} style={{ minHeight: 50 }}>
           {comments.length === 0 ? (
             <p className="text-center text-slate-500 dark:text-slate-400 py-8">Chưa có bình luận nào</p>
           ) :

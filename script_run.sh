@@ -61,6 +61,7 @@ echo "Starting backend + frontend with concurrently...
 Backend: http: localhost:3001
 FE: http://localhost:3000
 "
-npx concurrently \
-"npm run start:dev" \
-"cd frontend && npm run dev"\
+npm run start:dev
+# npx concurrently \
+# "npm run start:dev" \
+# "cd frontend && npm run dev"\
