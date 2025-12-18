@@ -1,17 +1,37 @@
-import { OnModuleInit } from "@nestjs/common";
-import { createClient, RedisClientType } from "redis";
+import { OnModuleInit } from '@nestjs/common';
+import { createClient, RedisClientType } from 'redis';
 
 export class RedisService implements OnModuleInit {
-  private client: RedisClientType;
+  private client: RedisClientType | null = null;
+  private enabled = false;
 
-   async onModuleInit() {
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  async onModuleInit() {
+    const redisUrl = process.env.REDIS_URL;
+
+    // 🔹 Không có env → disable Redis
+    if (!redisUrl) {
+      console.log('⚠️ Redis disabled (REDIS_URL not set)');
+      return;
+    }
+
     this.client = createClient({ url: redisUrl });
-    await this.client.connect();
-    console.log('✅ Redis connected');
-   }
 
-    async set(key: string, value: string, ttlSeconds?: number) {
+    try {
+      await this.client.connect();
+      this.enabled = true;
+      console.log('✅ Redis connected');
+    } catch (err) {
+      console.error('❌ Redis connect failed, running without Redis');
+      this.client = null;
+      this.enabled = false;
+    }
+  }
+
+  /** ========= SAFE METHODS ========= */
+
+  async set(key: string, value: string, ttlSeconds?: number) {
+    if (!this.enabled || !this.client) return;
+
     if (ttlSeconds) {
       await this.client.set(key, value, { EX: ttlSeconds });
     } else {
@@ -20,23 +40,32 @@ export class RedisService implements OnModuleInit {
   }
 
   async get(key: string) {
-    return await this.client.get(key);
+    if (!this.enabled || !this.client) return null;
+    return this.client.get(key);
   }
 
   async del(key: string) {
-    return await this.client.del(key);
+    if (!this.enabled || !this.client) return 0;
+    return this.client.del(key);
   }
 
   async incre(key: string) {
-    return await this.client.incr(key)
+    if (!this.enabled || !this.client) return 0;
+    return this.client.incr(key);
   }
 
   async expire(key: string, timeInSecond: number) {
-    return await this.client.expire(key, timeInSecond)
+    if (!this.enabled || !this.client) return 0;
+    return this.client.expire(key, timeInSecond);
   }
 
   async getAllKeys(pattern: string) {
-    return await this.client.keys(pattern)
+    if (!this.enabled || !this.client) return [];
+    return this.client.keys(pattern);
   }
 
+  /** ========= HELPER ========= */
+  isEnabled() {
+    return this.enabled;
+  }
 }
