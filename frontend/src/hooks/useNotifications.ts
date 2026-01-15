@@ -2,6 +2,7 @@ import { notificationApi } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useChatSocket } from '@/app/chat/ChatSocketProvider';
 import { useEffect } from 'react';
+import { useAuthStore } from '@/store/authStore';
 
 export interface Notification {
   id: number;
@@ -27,6 +28,8 @@ export function useNotifications(onFriendRequest?: (payload: {
 }) => void) {
   const queryClient = useQueryClient();
   const { socket, isConnected } = useChatSocket();
+  const user = useAuthStore((state) => state.user);
+  const isVerified = user?.is_verify_email === true;
 
   // Fetch notifications
   const {
@@ -40,11 +43,13 @@ export function useNotifications(onFriendRequest?: (payload: {
       return (res.data?.data || res.data || []) as Notification[];
     },
     refetchOnWindowFocus: true,
+    enabled: isVerified, 
   });
 
   // Mark as read mutation
   const markAsReadMutation = useMutation({
-    mutationFn: (id: number) => notificationApi.markAsRead(id),
+    mutationFn: (id: number) => 
+      notificationApi.markAsRead(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
@@ -60,7 +65,7 @@ export function useNotifications(onFriendRequest?: (payload: {
 
   // Listen for new friend requests via socket
   useEffect(() => {
-    if (!socket || !isConnected) return;
+    if (!socket || !isConnected || !isVerified) return;
 
     const handleFriendRequest = (payload: {
       id: number;

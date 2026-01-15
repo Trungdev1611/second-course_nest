@@ -22,7 +22,14 @@ import { NotificationModule } from './notification/notification.module';
 
     ConfigModule.forRoot({
       isGlobal: true, // 👈 Giúp ConfigModule dùng được ở mọi nơi
-      envFilePath: '.env', // (tuỳ chọn) chỉ định file env
+      // Tự động chọn file env dựa trên NODE_ENV
+      // Thứ tự ưu tiên: .env.local > .env.{NODE_ENV} > .env
+      envFilePath: [
+        `.env.${process.env.NODE_ENV || 'development'}.local`, // .env.development.local hoặc .env.production.local
+        `.env.${process.env.NODE_ENV || 'development'}`,        // .env.development hoặc .env.production
+        '.env.local',                                          // .env.local (cho local development)
+        '.env',                                                 // .env (fallback)
+      ],
       cache: true, // (tuỳ chọn) cache để load nhanh hơn
     }),
     TypeOrmModule.forRoot({

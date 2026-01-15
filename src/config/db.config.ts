@@ -3,7 +3,10 @@ import { DataSource } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import * as dotenv from 'dotenv';
 import { QueryLoggerSubscriber } from 'src/common/logger/query';
+
+dotenv.config({path: '.env.local'})
 dotenv.config(); 
+console.log(`process.env.DB_USERNAME `, process.env.DB_USERNAME, process.env.DB_PASSWORD, process.env.DB_DATABASE , process.env.PORT_DB )
 export const dataSourceConfig: PostgresConnectionOptions = {
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
@@ -15,9 +18,10 @@ export const dataSourceConfig: PostgresConnectionOptions = {
   // synchronize: true,
   migrationsTableName: 'migrations',
   //tránh chết app khi deploy
-  ssl: {
+
+  ssl: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false,
-  },
+  } : false,
   // ✅ Fix: Thêm connection pool config để tránh connection leak
   extra: {
     max: 10,

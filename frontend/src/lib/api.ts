@@ -35,6 +35,9 @@ export const authApi = {
   verifyEmail: (token: string) =>
     apiClient.get<ApiResponse>('/auth/verify-token-in-email', { params: { token } }),
   
+  sendVerificationEmail: (data: { email: string }) =>
+    apiClient.post<ApiResponse>('/auth/register-mail-get-token', data),
+  
   changePassword: (data: { email: string; password: string; new_password: string }) =>
     apiClient.post<ApiResponse>('/auth/change-password', data),
 };

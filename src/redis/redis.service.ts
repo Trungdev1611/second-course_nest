@@ -7,9 +7,9 @@ export class RedisService implements OnModuleInit {
 
   async onModuleInit() {
     const redisUrl = process.env.REDIS_URL;
-
+    const isProduction = process.env.NODE_ENV === 'production'
     // 🔹 Không có env → disable Redis
-    if (!redisUrl) {
+    if (!redisUrl && isProduction) {
       console.log('⚠️ Redis disabled (REDIS_URL not set)');
       return;
     }

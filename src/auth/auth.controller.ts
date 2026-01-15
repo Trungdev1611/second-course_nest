@@ -19,7 +19,6 @@ import { JwtAuthGuard } from 'src/guard/jwtAuthGuard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService,
-    private readonly mailService: EmailService
   ) {}
 
   @Post('login')

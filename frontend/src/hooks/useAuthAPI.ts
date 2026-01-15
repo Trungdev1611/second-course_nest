@@ -73,6 +73,15 @@ export default function useAuthAPI() {
     });
   };
 
+  const useSendVerificationEmail = () => {
+    return useMutation({
+      mutationFn: async (data: { email: string }) => {
+        const res = await authApi.sendVerificationEmail(data);
+        return res.data;
+      },
+    });
+  };
+
   const useChangePassword = () => {
     return useMutation({
       mutationFn: async (data: { email: string; password: string; new_password: string }) => {
@@ -100,6 +109,7 @@ export default function useAuthAPI() {
     useForgotPassword,
     useResetPassword,
     useVerifyEmail,
+    useSendVerificationEmail,
     useChangePassword,
     useLogout,
   };

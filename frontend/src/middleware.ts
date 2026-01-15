@@ -22,9 +22,10 @@ export function middleware(request: NextRequest) {
     '/tags',
     '/search',
     '/login',
-    '/auth/register',
-    '/auth/forgot-password',
-    '/auth/reset-password',
+    '/register',
+    '/verify-email',
+    '/forgot-password',
+    '/reset-password',
   ];
 
   // Các routes cần authentication
@@ -53,7 +54,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Nếu đã có token trong cookies và đang ở trang login/register, redirect về home
-  if (token && isAuthRoute && (pathname === '/login' || pathname === '/auth/register')) {
+  if (token && isAuthRoute && (pathname === '/login' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
